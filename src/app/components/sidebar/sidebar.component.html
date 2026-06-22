@@ -1,0 +1,36 @@
+<div class="side-nav-content">
+    <div class="nav-list" [ngClass]="{'nav-list-open': sideNavStatus}">
+        <a  routerLink="./inicio" routerLinkActive="active">
+            <mat-icon fontIcon="grid_view"></mat-icon>
+            <h3>Dashboard</h3>
+        </a>
+        <a  routerLink="./graficos" routerLinkActive="active">
+            <mat-icon fontIcon="area_chart"></mat-icon>
+            <h3>Gráficos</h3>
+        </a>
+        <a  routerLink="./productos" routerLinkActive="active">
+            <mat-icon fontIcon="shopping_cart"></mat-icon>
+            <h3>Productos</h3>
+        </a>
+        <a routerLink="./ventas" routerLinkActive="active">
+            <mat-icon fontIcon="receipt_long"></mat-icon>
+            <h3>Ventas</h3>
+        </a>
+        <a routerLink="./creditos" routerLinkActive="active">
+            <mat-icon fontIcon="credit_score"></mat-icon>
+            <h3>Créditos</h3>
+        </a>
+        <!-- <a routerLink="./gastos" routerLinkActive="active">
+            <mat-icon fontIcon="payments"></mat-icon>
+            <h3>Gastos</h3>
+        </a> -->
+        <a routerLink="./vendedores" routerLinkActive="active">
+            <mat-icon fontIcon="person_pin"></mat-icon>
+            <h3>Vendedores</h3>
+        </a>
+        <a routerLink="./proveedores" routerLinkActive="active">
+            <mat-icon fontIcon="factory"></mat-icon>
+            <h3>Proveedores</h3>
+        </a>
+    </div>
+</div>
