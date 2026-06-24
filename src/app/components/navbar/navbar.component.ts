@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, HostBinding, HostListener } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -7,8 +7,9 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Output() sideNavToggled = new EventEmitter<boolean>();
-  menuStatus: boolean = false;
+  @HostBinding('class.navbar-hidden') isNavbarHidden = false;
+
+  private lastScrollTop = 0;
   user: any;
 
   constructor(private authService: AuthService) { 
@@ -16,11 +17,13 @@ export class NavbarComponent {
   }
 
 
-  sideNavToggle() {
-    this.menuStatus = !this.menuStatus;
-    this.sideNavToggled.emit(this.menuStatus);
-    console.log(this.menuStatus);
-    
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const currentScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    const isScrollingDown = currentScrollTop > this.lastScrollTop;
+
+    this.isNavbarHidden = currentScrollTop > 20 && isScrollingDown;
+    this.lastScrollTop = Math.max(currentScrollTop, 0);
   }
 
   logout() {

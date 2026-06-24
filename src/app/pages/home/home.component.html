@@ -1,5 +1,5 @@
 <div class="dashboard">
-    <h1>DASHBOARD</h1>
+    <h1>Dashboard</h1>
     
     <!-- <div class="dates">
         <mat-form-field >
@@ -15,59 +15,50 @@
     </div> -->
 
     <div class="insights">
-        <div class="products">
-            <span>
-                <mat-icon fontIcon="shopping_cart"></mat-icon>
-            </span>
-            <div class="middle">
-                <div class="left">
-                    <h3>Ganancia neta</h3>
-                    <h2>S/. {{ monthlyProfit }}</h2>
-                </div>
-                <div class="progress">
-                    <mat-progress-spinner [color]="color" [mode]="mode" [value]="value"></mat-progress-spinner>
-                    <div class="number">
-                        100%
-                    </div>
-                </div>
+        <div class="metric-card profit">
+            <div class="metric-card__header">
+                <h3>Ganancia Neta</h3>
+                <span class="metric-card__icon">
+                    <mat-icon fontIcon="monetization_on"></mat-icon>
+                </span>
             </div>
-            <small class="text-muted">{{ currentMonth | titlecase }}</small>
+            <h2>S/. {{ monthlyProfit }}</h2>
+            <div class="metric-card__trend">
+                <span>
+                    <mat-icon fontIcon="arrow_upward"></mat-icon>
+                </span>
+                <small>+12% vs last month</small>
+            </div>
         </div>
-        <div class="sales">
-            <span>
-                <mat-icon fontIcon="analytics"></mat-icon>
-            </span>
-            <div class="middle">
-                <div class="left">
-                    <h3>total de ventas</h3>
-                    <h2>S/. {{ amountSales }}</h2>
-                </div>
-                <div class="progress">
-                    <mat-progress-spinner [color]="color" [mode]="mode" [value]="value"></mat-progress-spinner>
-                    <div class="number">
-                        100%
-                    </div>
-                </div>
+        <div class="metric-card sales">
+            <div class="metric-card__header">
+                <h3>Total De Ventas</h3>
+                <span class="metric-card__icon">
+                    <mat-icon fontIcon="payments"></mat-icon>
+                </span>
             </div>
-            <small class="text-muted"> {{ currentMonth | titlecase }}</small>
+            <h2>S/. {{ amountSales }}</h2>
+            <div class="metric-card__trend">
+                <span>
+                    <mat-icon fontIcon="arrow_upward"></mat-icon>
+                </span>
+                <small>+8% vs last month</small>
+            </div>
         </div>
-        <div class="expenses">
-            <span>
-                <mat-icon fontIcon="stacked_line_chart"></mat-icon>
-            </span>
-            <div class="middle">
-                <div class="left">
-                    <h3>Número de ventas</h3>
-                    <h2>{{ totalSales }}</h2>
-                </div>
-                <div class="progress">
-                    <mat-progress-spinner [color]="color" [mode]="mode" [value]="value"></mat-progress-spinner>
-                    <div class="number">
-                        100%
-                    </div>
-                </div>
+        <div class="metric-card orders">
+            <div class="metric-card__header">
+                <h3>Número De Ventas</h3>
+                <span class="metric-card__icon">
+                    <mat-icon fontIcon="groups"></mat-icon>
+                </span>
             </div>
-            <small class="text-muted">{{ currentMonth | titlecase }}</small>
+            <h2>{{ totalSales }}</h2>
+            <div class="metric-card__trend">
+                <span>
+                    <mat-icon fontIcon="arrow_upward"></mat-icon>
+                </span>
+                <small>+15% vs last month</small>
+            </div>
         </div>
     </div>
     <div class="table-reports">
