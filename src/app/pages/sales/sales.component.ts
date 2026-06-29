@@ -22,7 +22,7 @@ import { ModalInfoSaleComponent } from 'src/app/components/modal-info-sale/modal
   styleUrls: ['./sales.component.scss']
 })
 export class SalesComponent implements OnInit {
-  displayedColumns: string[] = ['clientName', 'direccionCliente','nombreVendedor', 'dateSale', 'totalPrice', 'paymentMethod', 'state', 'actions'];
+  displayedColumns: string[] = ['fechaVenta', 'metodoPago','precioTotal', 'state', 'actions'];
   dataSource!: MatTableDataSource<SaleModel>;
 
   public totalSales?:number;
@@ -77,10 +77,10 @@ export class SalesComponent implements OnInit {
     this.dataService.dayliSalesByLocal(this.local).subscribe({
                 next: (res) => {
                   console.log(res);
-                  this.netProfit = res.ganancia_neta;
-                  this.totalSales2 = res.ventas_totales;
+                  this.netProfit = res.ganancia_neta/100;
+                  this.totalSales2 = res.ventas_totales/100;
                   this.salesCount = res.numero_ventas;
-                  this.partialPayment = res.pagos_parciales_hoy;
+                  this.partialPayment = res.pagos_parciales_hoy/100;
                 },
                 error: (e) => {
                   console.log(e);
@@ -94,7 +94,7 @@ export class SalesComponent implements OnInit {
         console.log(res);
         
         this.sales = res.data;
-        this.sales.sort((a, b) => new Date(b.dateSale).getTime() - new Date(a.dateSale).getTime())  
+        // this.sales.sort((a, b) => new Date(b.dateSale).getTime() - new Date(a.dateSale).getTime())  
         console.log(res);
         this.dataSource = new MatTableDataSource(this.sales);
         this.dataSource.paginator = this.paginator;

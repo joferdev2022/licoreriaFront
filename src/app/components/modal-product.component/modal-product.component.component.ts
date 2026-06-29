@@ -1,5 +1,7 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { combineLatest, Subscription } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogModule} from '@angular/material/dialog';
 import { DataService } from '../../services/data.service';
@@ -11,36 +13,45 @@ import { ProductRequest } from 'src/app/models/request/product.request';
   templateUrl: './modal-product.component.component.html',
   styleUrls: ['./modal-product.component.component.scss']
 })
-export class ModalProductComponentComponent implements OnInit {
+export class ModalProductComponentComponent implements OnInit, OnDestroy {
   public productForm!: FormGroup;
   local!: any;
+  private skuSub!: Subscription;
 
   selectedValue!: string;
 
   category = [
-    {value: 'Insecticidas', viewValue: 'Insecticidas'},
-    {value: 'Herbicidas', viewValue: 'Herbicidas'},
-    {value: 'Fertilizantes', viewValue: 'Fertilizantes'},
-    {value: 'Bioestimulantes', viewValue: 'Bioestimulantes'},
-    {value: 'Fungicidas', viewValue: 'Fungicidas'},
-    {value: 'Abonos Foliares', viewValue: 'Abonos Foliares'},
-    {value: 'Fertilizantes solubles', viewValue: 'Fertilizantes solubles'},
-    {value: 'Fertilizantes edáficos', viewValue: 'Fertilizantes edáficos'},
+    {value: 'cerveza', viewValue: 'Cerveza'},
+    {value: 'vino', viewValue: 'Vino'},
+    {value: 'whisky', viewValue: 'Whisky'},
+    {value: 'ron', viewValue: 'Ron'},
+    {value: 'vodka', viewValue: 'Vodka'},
+    {value: 'pisco', viewValue: 'Pisco'},
+    {value: 'tequila', viewValue: 'Tequila'},
+    {value: 'gin', viewValue: 'Gin'},
+    {value: 'espumante', viewValue: 'Espumante'},
+    {value: 'energizante', viewValue: 'Energizante'},
+    {value: 'gaseosa', viewValue: 'Gaseosa'},
+    {value: 'agua', viewValue: 'Agua'},
+    {value: 'snacks', viewValue: 'Snacks'},
+    {value: 'otros', viewValue: 'Otros'},
   ]
 
-  measure = [
-    {value: 'Unidad', viewValue: 'Unidad'},
-    {value: 'Caja', viewValue: 'Caja'},
-    {value: '100 GRAMOS', viewValue: '100 GR'},
-    {value: '500 GRAMOS', viewValue: '500 GR'},
-    {value: 'KILOGRAMO', viewValue: 'KG'},
-    {value: '10 KILOGRAMOS', viewValue: '10 KG'},
-    {value: '25 KILOGRAMOS', viewValue: '25 KG'},
-    {value: '50 KILOGRAMOS', viewValue: '50 KG'},
-    {value: '125 MILILITROS', viewValue: '125 ML'},
-    {value: '250 MILILITROS', viewValue: '250 ML'},
-    {value: 'LITRO', viewValue: 'LT'},
-    {value: '4 LITROS', viewValue: '4 LT'},
+  presentations = [
+    {value: 'botella', viewValue: 'Botella'},
+    {value: 'lata', viewValue: 'Lata'},
+    {value: 'tetra pak', viewValue: 'Tetra Pak'},
+    {value: 'pack', viewValue: 'Pack'},
+    {value: 'caja', viewValue: 'Caja'},
+    {value: 'unidad', viewValue: 'Unidad'},
+  ]
+
+  contentUnits = [
+    {value: 'ml', viewValue: 'ml'},
+    {value: 'l', viewValue: 'L'},
+    {value: 'g', viewValue: 'g'},
+    {value: 'kg', viewValue: 'kg'},
+    {value: 'und', viewValue: 'und.'},
   ]
 
   constructor(public dialogRef: MatDialogRef<ModalProductComponentComponent>,
@@ -61,26 +72,131 @@ export class ModalProductComponentComponent implements OnInit {
 
   createForm() {
     this.productForm = this.fb.group({
-      // tel: new FormControl()
-      nameProduct: [  this.data.product ? this.data.product.name : '' , Validators.required ],
-      description: [ this.data.product ? this.data.product.description : '', [ Validators.required] ],
+      nameProduct: [ this.data.product ? this.data.product.name : '' , Validators.required ],
+      description: [ this.data.product ? this.data.product.description : '' ],
       category: [ this.data.product ? this.data.product.category : '', Validators.required ],
-      measure: [ this.data.product ? this.data.product.measure : '', Validators.required ],
-      buyPrice: [ this.data.product ? this.data.product.priceBuy : '', Validators.required ],
-      salePrice: [ this.data.product ? this.data.product.priceSale : '', Validators.required ],
-      Stock: [ this.data.product ? this.data.product.stock : '', Validators.required ],
-      provId: [ this.data.product ? this.data.product.proovId : '', Validators.required ],
-      startDate: [ this.data.product ? this.data.product.creationDate : '', Validators.required ],
-      endDate: [ this.data.product ? this.data.product.expirationDate : '', Validators.required ],
+      brand: [ this.data.product ? this.data.product.brand : '', Validators.required ],
+      content: [ this.data.product ? this.data.product.content : '', [Validators.required, Validators.min(0)] ],
+      contentUnit: [ this.data.product ? this.data.product.contentUnit : 'ml', Validators.required ],
+      presentation: [ this.data.product ? this.data.product.presentation : 'botella', Validators.required ],
+      barcode: [ this.data.product ? this.data.product.barcode : '' ],
+      buyPrice: [ this.data.product ? this.data.product.priceBuy : '', [Validators.required, Validators.min(0)] ],
+      salePrice: [ this.data.product ? this.data.product.priceSale : '' ],
+      Stock: [ this.data.product ? this.data.product.stock : '', [Validators.required, Validators.min(0)] ],
+      provId: [ this.data.product ? this.data.product.proovId : '' ],
+      endDate: [ this.data.product ? this.data.product.expirationDate : '' ],
       local: [ this.local ],
-      // subscriptions: [ this.data.customer ? this.data.customer.subscriptions : '', Validators.required ],
+      skus: this.fb.array(this.getInitialSkus().map((sku: any) => this.createSkuFormGroup(sku)))
     });
     console.log(this.data.product);
-    
+
+    // Auto-generar skuId cuando cambian los campos relevantes
+    this.skuSub = combineLatest([
+      this.productForm.get('category')!.valueChanges.pipe(startWith(this.productForm.get('category')!.value)),
+      this.productForm.get('nameProduct')!.valueChanges.pipe(startWith(this.productForm.get('nameProduct')!.value)),
+      this.productForm.get('content')!.valueChanges.pipe(startWith(this.productForm.get('content')!.value)),
+      this.productForm.get('contentUnit')!.valueChanges.pipe(startWith(this.productForm.get('contentUnit')!.value)),
+    ]).subscribe(([category, name, content, unit]) => {
+      this.updateAllSkuIds(category, name, content, unit);
+    });
+  }
+
+  generateSkuId(category: string, name: string, content: any, contentUnit: string, skuName?: string): string {
+    const cat = (category || '').toLowerCase().trim();
+    const prodName = (name || '').toLowerCase().replace(/\s+/g, '').trim();
+    const cont = content != null && content !== '' ? content : '';
+    const unit = (contentUnit || '').toLowerCase().trim();
+
+    let skuId = `${cat}_${prodName}${cont}${unit}`;
+    if (skuName && skuName.toLowerCase() !== 'unidad') {
+      skuId += `_${skuName.toLowerCase().replace(/\s+/g, '')}`;
+    }
+    return skuId;
+  }
+
+  updateAllSkuIds(category: string, name: string, content: any, contentUnit: string): void {
+    this.skus.controls.forEach((skuGroup) => {
+      const skuName = skuGroup.get('name')!.value;
+      const newSkuId = this.generateSkuId(category, name, content, contentUnit, skuName);
+      skuGroup.get('skuId')!.setValue(newSkuId, { emitEvent: false });
+    });
+  }
+
+  get skus(): FormArray {
+    return this.productForm.get('skus') as FormArray;
+  }
+
+  get skuControls() {
+    return this.skus.controls;
+  }
+
+  getInitialSkus(): any[] {
+    if (this.data.product?.skus?.length) {
+      return this.data.product.skus.map((sku: any) => ({
+        skuId: sku.skuId,
+        name: sku.name,
+        unitEquivalence: sku.unitEquivalence,
+        priceSale: sku.priceSale
+      }));
+    }
+
+    return [
+      { skuId: 'unidad', name: 'Unidad', unitEquivalence: 1, priceSale: '' },
+    ];
+  }
+
+  createSkuFormGroup(sku?: any): FormGroup {
+    const group = this.fb.group({
+      skuId: [ sku?.skuId ?? '', Validators.required ],
+      name: [ sku?.name ?? '', Validators.required ],
+      unitEquivalence: [ sku?.unitEquivalence ?? 1, [Validators.required, Validators.min(1)] ],
+      priceSale: [ sku?.priceSale ?? '', [Validators.required, Validators.min(0)] ],
+    });
+
+    // Cuando cambia el nombre del SKU, regenerar su skuId
+    group.get('name')!.valueChanges.subscribe((skuName: string) => {
+      if (this.productForm) {
+        const category = this.productForm.get('category')!.value;
+        const name = this.productForm.get('nameProduct')!.value;
+        const content = this.productForm.get('content')!.value;
+        const contentUnit = this.productForm.get('contentUnit')!.value;
+        const newSkuId = this.generateSkuId(category, name, content, contentUnit, skuName);
+        group.get('skuId')!.setValue(newSkuId, { emitEvent: false });
+      }
+    });
+
+    return group;
+  }
+
+  addSku() {
+    const category = this.productForm.get('category')!.value;
+    const name = this.productForm.get('nameProduct')!.value;
+    const content = this.productForm.get('content')!.value;
+    const contentUnit = this.productForm.get('contentUnit')!.value;
+
+    const newSku = this.createSkuFormGroup({
+      skuId: '',
+      name: '',
+      unitEquivalence: 1,
+      priceSale: ''
+    });
+
+    this.skus.push(newSku);
+
+    // Generar skuId inicial para el nuevo SKU
+    const skuName = newSku.get('name')!.value;
+    const newSkuId = this.generateSkuId(category, name, content, contentUnit, skuName);
+    newSku.get('skuId')!.setValue(newSkuId, { emitEvent: false });
+  }
+
+  removeSku(index: number) {
+    if (this.skus.length > 1) {
+      this.skus.removeAt(index);
+    }
   }
 
   onCreate() {
-    if(true) {
+    if(this.productForm.valid) {
       // console.log(this.userForm.value);
 
       // this.newUser = this.userForm.value;
@@ -90,48 +206,43 @@ export class ModalProductComponentComponent implements OnInit {
       
       this.dataService.saveProduct(ProductRequest.createFromObject(this.productForm.value)).subscribe({
         next: (res) => {
-          console.log(res)
-          if (res && res.success) {
-            this.dialogRef.close(true);
-          } else {
-            this.dialogRef.close(false);
-          }
-          // this.cus.alertService = res.message;
+          console.log(res);
+          this.dialogRef.close(true);
         },
         error: (e) => {
-          // this.openConfirmationModal(Default.CONFIRM_ERROR);
           console.log(e);
           this.dialogRef.close(false);
         }
-
       });
       
     } else {
-      // this.openConfirmationModal(Default.CONFIRM_ERROR);
+      this.productForm.markAllAsTouched();
     }
     
   }
 
   onUpdate() {
     console.log("vamos a updatear");
-    if(true){
+    if(this.productForm.valid){
       this.dataService.updateProductById(this.data.product.id, ProductRequest.createFromObject(this.productForm.value)).subscribe({
         next: (res) => {
           console.log(res);
-          if (res && res.success) {
-            this.dialogRef.close(true);
-          } else {
-            this.dialogRef.close(false);
-          }
+          this.dialogRef.close(true);
         },
         error: (e) => {
           console.log(e);
           this.dialogRef.close(false);
         }
       });
+    } else {
+      this.productForm.markAllAsTouched();
     }
   }
 
- 
+  ngOnDestroy(): void {
+    if (this.skuSub) {
+      this.skuSub.unsubscribe();
+    }
+  }
 
 }

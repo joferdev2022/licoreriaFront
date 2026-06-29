@@ -16,8 +16,8 @@ import { SellerMonthlyStatsResponse } from '../models/request/seller_monthly_sta
 
 
 
-// const base_url = "http://localhost:8000/api";
-const base_url = "https://almacenback.onrender.com/api";
+const base_url = "http://localhost:8000/api";
+// const base_url = "https://almacenback.onrender.com/api";
 
 @Injectable({
   providedIn: 'root'
@@ -31,28 +31,28 @@ export class DataService {
 
 
   loadProducts(page: number = 1, perPage: number = 2000, local: any):Observable<ProductResponse> {
-    const url = `${ base_url }/products?page=${ page }&xpage=${ perPage }&local=${local}`;
+    const url = `${ base_url }/productsliquor?page=${ page }&xpage=${ perPage }&local=${local}`;
     return this.http.get<ProductResponse>(url).pipe(map(res => ProductResponse.createFromObject(res)));
   }
 
   
   loadAllSellers(page: number = 1, perPage: number = 5000, local:any):Observable<any> {
-    const url = `${ base_url }/sellers?page=${ page }&xpage=${ perPage }&local=${local}`;
+    const url = `${ base_url }/sellersliquor?page=${ page }&xpage=${ perPage }&local=${local}`;
     return this.http.get<SellerResponse>(url).pipe(map(res => SellerResponse.createFromObject(res)));
   }
 
   loadAllProviders(page: number = 1, perPage: number = 5000, local:any):Observable<any> {
-    const url = `${ base_url }/providers?page=${ page }&xpage=${ perPage }&local=${local}`;
+    const url = `${ base_url }/providersliquor?page=${ page }&xpage=${ perPage }&local=${local}`;
     return this.http.get<ProviderResponse>(url).pipe(map(res => ProviderResponse.createFromObject(res)));
   }
 
   loadSales(page: number = 1, perPage: number = 5000, local:any):Observable<SaleResponse> {
-    const url = `${ base_url }/sales?page=${ page }&xpage=${ perPage }&local=${local}`;
+    const url = `${ base_url }/salesliquor?page=${ page }&xpage=${ perPage }&local=${local}`;
     return this.http.get<SaleResponse>(url).pipe(map(res => SaleResponse.createFromObject(res)));
   }
 
   loadSalesWithCredit(page: number = 1, perPage: number = 5000, local:any):Observable<SaleResponse> {
-    const url = `${ base_url }/sales/credits?page=${ page }&xpage=${ perPage }&local=${local}`;
+    const url = `${ base_url }/salesliquor/credits?page=${ page }&xpage=${ perPage }&local=${local}`;
     return this.http.get<SaleResponse>(url).pipe(map(res => SaleResponse.createFromObject(res)));
   }
 
@@ -70,32 +70,32 @@ export class DataService {
       params = params.set('local', local);
     }
 
-    const url = `${ base_url }/dashboard`;
+    const url = `${ base_url }/dashboardliquor`;
     return this.http.get<DashboardResponse>(url,  { params }).pipe(map(res => DashboardResponse.createFromObject(res)));
   }
 
 
   saveProduct(productData: ProductRequest):Observable<any> {
 
-    const url = `${ base_url }/products`;
+    const url = `${ base_url }/productsliquor`;
     console.log(productData);
     
     // return this.http.post<any>( url, productData ).pipe(map(res => ResponseCustomer.createFromObject(res)));
-    return this.http.post<any>( url, productData ).pipe(map(res => console.log(res)));
+    return this.http.post<any>( url, productData ).pipe(map(res => res));
   }
 
   saveSeller(sellerData: SellerRequest):Observable<any> {
 
-    const url = `${ base_url }/sellers`;
+    const url = `${ base_url }/sellersliquor`;
     console.log(sellerData);
     
     // return this.http.post<any>( url, productData ).pipe(map(res => ResponseCustomer.createFromObject(res)));
-    return this.http.post<any>( url, sellerData ).pipe(map(res => console.log(res)));
+    return this.http.post<any>( url, sellerData ).pipe(map(res => res));
   }
 
   saveProvider(providerData: ProviderRequest):Observable<any> {
 
-    const url = `${ base_url }/providers`;
+    const url = `${ base_url }/providersliquor`;
     console.log(providerData);
     
     // return this.http.post<any>( url, productData ).pipe(map(res => ResponseCustomer.createFromObject(res)));
@@ -103,52 +103,52 @@ export class DataService {
   }
 
   updateProductById(productId: any , productData:ProductRequest):Observable<any> {
-    const url = `${ base_url }/products/${productId}`;
-    return this.http.put<any>( url, productData ).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/productsliquor/${productId}`;
+    return this.http.put<any>( url, productData ).pipe(map(res => res));
   }
 
   updateSellerById(sellerId: any , sellerData:SellerRequest):Observable<any> {
-    const url = `${ base_url }/sellers/${sellerId}`;
-    return this.http.put<any>( url, sellerData ).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/sellersliquor/${sellerId}`;
+    return this.http.put<any>( url, sellerData ).pipe(map(res => res));
   }
 
   updateProviderById(providerId: any , providerData:ProviderRequest):Observable<any> {
-    const url = `${ base_url }/providers/${providerId}`;
+    const url = `${ base_url }/providersliquor/${providerId}`;
     return this.http.put<any>( url, providerData ).pipe(map(res => console.log(res)));
   }
 
   updatStateSaleById(saleId: any , state: any):Observable<any> {
-    const url = `${ base_url }/sales/state/${saleId}?state=${state}`;
-    return this.http.put<any>( url, {} ).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/salesliquor/state/${saleId}?state=${state}`;
+    return this.http.put<any>( url, {} ).pipe(map(res => res));
   }
 
   updatePaymentSaleById(saleId: any , payment: any):Observable<any> {
-    const url = `${ base_url }/sales/payment/${saleId}?payment=${payment}`;
-    return this.http.put<any>( url, {} ).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/salesliquor/payment/${saleId}?payment=${payment}`;
+    return this.http.put<any>( url, {} ).pipe(map(res => res));
   }
 
   updateProviderDebtById(providerId: any, deuda: number, monto: number): Observable<any> {
-  const url = `${base_url}/providers/${providerId}/debt`;
-  return this.http.put<any>(url, { deuda, monto }).pipe(map(res => console.log(res)));
+  const url = `${base_url}/providersliquor/${providerId}/debt`;
+  return this.http.put<any>(url, { deuda, monto }).pipe(map(res => res));
 }
 
   deleteProductById(productId: any):Observable<any> {
-    const url = `${ base_url }/products/${productId}`;
-    return this.http.delete<any>(url).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/productsliquor/${productId}`;
+    return this.http.delete<any>(url).pipe(map(res => res));
   }
 
   deleteSellerById(sellerId: any):Observable<any> {
-    const url = `${ base_url }/sellers/${sellerId}`;
-    return this.http.delete<any>(url).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/sellersliquor/${sellerId}`;
+    return this.http.delete<any>(url).pipe(map(res => res));
   }
 
   deleteProviderById(providerId: any):Observable<any> {
-    const url = `${ base_url }/providers/${providerId}`;
-    return this.http.delete<any>(url).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/providersliquor/${providerId}`;
+    return this.http.delete<any>(url).pipe(map(res => res));
   }
 
   getSellerMonthlyStats(sellerName: string, month: number, year: number, local: any): Observable<SellerMonthlyStatsResponse> {
-      const url = `${base_url}/sellers/${encodeURIComponent(sellerName)}/monthly-stats?local=${local}&year=${year}&month=${month}`;
+      const url = `${base_url}/sellersliquor/${encodeURIComponent(sellerName)}/monthly-stats?local=${local}&year=${year}&month=${month}`;
       return this.http.get<SellerMonthlyStatsResponse>(url)
           .pipe(map(res => SellerMonthlyStatsResponse.createFromObject(res)));
   }
@@ -156,25 +156,25 @@ export class DataService {
   
   saveSale(saleData: SaleRequest):Observable<any> {
 
-    const url = `${ base_url }/sales`;
+    const url = `${ base_url }/salesliquor`;
     console.log(saleData);
     
     // return this.http.post<any>( url, productData ).pipe(map(res => ResponseCustomer.createFromObject(res)));
-    return this.http.post<any>( url, saleData ).pipe(map(res => console.log(res)));
+    return this.http.post<any>( url, saleData ).pipe(map(res => res));
   }
   deleteSaleById(saleId: any):Observable<any> {
-    const url = `${ base_url }/sales/${saleId}`;
-    return this.http.delete<any>(url).pipe(map(res => console.log(res)));
+    const url = `${ base_url }/salesliquor/${saleId}`;
+    return this.http.delete<any>(url).pipe(map(res => res));
   }
 
   dayliSalesByLocal(local: any):Observable<any> {
     // localhost:8000/api/sales/summary/daily
-    const url = `${ base_url }/sales/summary/daily?local=${local}`;
+    const url = `${ base_url }/salesliquor/summary/daily?local=${local}`;
     return this.http.get<any>(url).pipe(map(res => {return res;}));
   }
 
   uploadProductsExcel(file: File, local: any): Observable<any> {
-    const url = `${base_url}/products/upload-excel`;
+    const url = `${base_url}/productsliquor/upload-excel`;
     const formData = new FormData();
     formData.append('file', file);
     formData.append('local', local);
@@ -183,7 +183,7 @@ export class DataService {
   }
 
   DownloadProductsExcel(local: any){
-    const url = `${base_url}/products/download-excel?local=${local}`;
+    const url = `${base_url}/productsliquor/download-excel?local=${local}`;
 
     this.http.get(url, { responseType: 'blob' }).subscribe((data: Blob) => {
       const objectUrl = window.URL.createObjectURL(data);

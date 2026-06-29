@@ -1,90 +1,136 @@
-<h2 *ngIf="data.operation == 'create'" mat-dialog-title>Crear Nuevo Producto:</h2>
-<h2 *ngIf="data.operation == 'update'" mat-dialog-title>Actualizar Cliente:</h2>
-<mat-dialog-content class="mat-typography">
-  <div class="example-container" >
-    <form class="example-form" [formGroup]="productForm">
-      <mat-form-field class="example-full-width">
-        <mat-label>Producto:</mat-label>
-        <input matInput type="text" placeholder="" formControlName="nameProduct" required>
-      </mat-form-field>
-    
-       <mat-form-field class="example-full-width">
-        <mat-label>descripción:</mat-label>
-        <input matInput placeholder="" formControlName="description" required>
-      </mat-form-field>
-       <!-- <mat-form-field class="example-full-width">
-        <mat-label>Categoria:</mat-label>
-        <input matInput placeholder="" formControlName="category" required>
-      </mat-form-field> -->
-      <div class="select-div">
-        <mat-form-field class="">
-          <mat-label>Categoria:</mat-label>
+<h2 mat-dialog-title>{{ data.operation == 'create' ? 'Crear producto' : 'Editar producto' }}</h2>
+
+<mat-dialog-content class="mat-typography product-dialog">
+  <form class="product-form" [formGroup]="productForm">
+    <section class="form-section">
+      <div class="section-heading">
+        <h3>Datos del producto</h3>
+      </div>
+
+      <div class="form-grid two-columns">
+        <mat-form-field appearance="outline">
+          <mat-label>Producto</mat-label>
+          <input matInput type="text" formControlName="nameProduct" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Marca</mat-label>
+          <input matInput type="text" formControlName="brand" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Categoria</mat-label>
           <mat-select formControlName="category">
-            <!-- <mat-option>Seleccione una categoria</mat-option> -->
             <mat-option *ngFor="let item of category" [value]="item.value">{{item.viewValue}}</mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field class="">
-          <mat-label>Medida:</mat-label>
-          <mat-select formControlName="measure">
-            <!-- <mat-option>Seleccione una categoria</mat-option> -->
-            <mat-option *ngFor="let item of measure" [value]="item.value">{{item.viewValue}}</mat-option>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Codigo de barras</mat-label>
+          <input matInput type="text" formControlName="barcode">
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripcion</mat-label>
+        <textarea matInput rows="2" formControlName="description"></textarea>
+      </mat-form-field>
+    </section>
+
+    <section class="form-section">
+      <div class="section-heading">
+        <h3>Presentacion</h3>
+      </div>
+
+      <div class="form-grid three-columns">
+        <mat-form-field appearance="outline">
+          <mat-label>Presentacion</mat-label>
+          <mat-select formControlName="presentation">
+            <mat-option *ngFor="let item of presentations" [value]="item.value">{{item.viewValue}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contenido</mat-label>
+          <input matInput type="number" min="0" formControlName="content" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Unidad</mat-label>
+          <mat-select formControlName="contentUnit">
+            <mat-option *ngFor="let item of contentUnits" [value]="item.value">{{item.viewValue}}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
-      <div class="select-div">
-        <mat-form-field class="">
-          <mat-label>Precio de compra:</mat-label>
-          <input matInput placeholder="" formControlName="buyPrice" required>
-        </mat-form-field>
-         <mat-form-field class="">
-          <mat-label>precio de venta:</mat-label>
-          <input matInput placeholder="" formControlName="salePrice" required>
-        </mat-form-field>
+    </section>
+
+    <section class="form-section">
+      <div class="section-heading">
+        <h3>Inventario</h3>
       </div>
-      <div class="input-div">
-        <mat-form-field class="">
-          <mat-label>Stock:</mat-label>
-          <input matInput placeholder="" formControlName="Stock" required>
+
+      <div class="form-grid three-columns">
+        <mat-form-field appearance="outline">
+          <mat-label>Costo unitario S/.</mat-label>
+          <input matInput type="number" min="0" step="0.01" formControlName="buyPrice" required>
         </mat-form-field>
-        <!-- <mat-form-field class="example-full-width">
-          <mat-label>ProveedorId:</mat-label>
-          <input matInput placeholder="" formControlName="Stock" required>
-        </mat-form-field> -->
-        <mat-form-field >
-          <mat-label>Fecha de caducidad:</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="endDate" placeholder="caducidad">
-          <mat-hint>MM/DD/YYYY</mat-hint>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Stock base</mat-label>
+          <input matInput type="number" min="0" formControlName="Stock" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de caducidad</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="endDate">
           <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
-        <!-- <mat-form-field class="example-full-width">
-          <mat-label>Caducidad:</mat-label>
-          <input matInput placeholder="" formControlName="endDate" required>
-        </mat-form-field> -->
       </div>
-       
-      
-      <!-- <mat-form-field class="example-full-width">
-        <mat-label>Stock:</mat-label>
-        <input matInput placeholder="" formControlName="Stock" required>
-      </mat-form-field> -->
-      <!-- <div class="state-radio-button">
-        <label>Estado: </label>
-        <mat-radio-group formControlName="state">
-          <mat-radio-button value="ACTIVE">ACTIVO</mat-radio-button>
-          <mat-radio-button value="INACTIVE">INACTIVO</mat-radio-button>
-        </mat-radio-group>
-      </div> -->
-      <!-- <mat-form-field class="example-full-width">
-        <mat-label>Conceptos:</mat-label>
-        <input matInput type="text" placeholder="" formControlName="subscriptions" >
-      </mat-form-field> -->
-    </form> 
-  </div>
+    </section>
+
+    <section class="form-section sku-section" formArrayName="skus">
+      <div class="section-heading sku-heading">
+        <div>
+          <h3>Precios de venta</h3>
+        </div>
+        <button type="button" class="btn-add-sku" (click)="addSku()">
+          <mat-icon class="material-icons-outlined">add</mat-icon>
+          Agregar precio
+        </button>
+      </div>
+
+      <div class="sku-editor" *ngFor="let skuGroup of skuControls; let i = index" [formGroupName]="i">
+        <mat-form-field appearance="outline">
+          <mat-label>SKU</mat-label>
+          <input matInput type="text" formControlName="skuId" readonly required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre de venta</mat-label>
+          <input matInput type="text" formControlName="name" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Equivalencia</mat-label>
+          <input matInput type="number" min="1" formControlName="unitEquivalence" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Precio S/.</mat-label>
+          <input matInput type="number" min="0" step="0.01" formControlName="priceSale" required>
+        </mat-form-field>
+
+        <button type="button" class="btn-remove-sku" (click)="removeSku(i)" [disabled]="skus.length === 1" title="Eliminar precio">
+          <mat-icon class="material-icons-outlined">delete</mat-icon>
+        </button>
+      </div>
+    </section>
+  </form>
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
   <button class="btn-cancel" mat-button mat-dialog-close>Cancelar</button>
-  <button *ngIf="data.operation == 'create'" mat-button (click)="onCreate()" [mat-dialog-close]="true" cdkFocusInitial>Guardar</button>
-  <button *ngIf="data.operation == 'update'" mat-button (click)="onUpdate()" [mat-dialog-close]="true" cdkFocusInitial>Guardar</button>
+  <button *ngIf="data.operation == 'create'" class="btn-save" mat-button (click)="onCreate()" cdkFocusInitial>Guardar</button>
+  <button *ngIf="data.operation == 'update'" class="btn-save" mat-button (click)="onUpdate()" cdkFocusInitial>Guardar</button>
 </mat-dialog-actions>

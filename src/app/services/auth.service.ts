@@ -6,8 +6,8 @@ import { UserModel } from '../models/internal/user.model';
 import { Router } from '@angular/router';
 
 
-const base_url = "https://almacenback.onrender.com/api";
-// const base_url = "http://localhost:8000/api";
+// const base_url = "https://almacenback.onrender.com/api";
+const base_url = "http://localhost:8000/api";
 
 @Injectable({
   providedIn: 'root'
@@ -74,7 +74,7 @@ export class AuthService {
       .set('password', data.password)
     
 
-    const url = `${ base_url }/auth`;
+    const url = `${ base_url }/authliquor`;
     // console.log(question);
     
     return this.http.post<any>( url, body);

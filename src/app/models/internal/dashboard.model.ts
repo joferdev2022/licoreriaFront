@@ -18,7 +18,7 @@ export class DashboardModel {
         newObj.lowProducts = LowProduct.createFromObjects(obj.lowProducts);
         newObj.totalProducts = obj.totalProducts;
         newObj.AmountSales = obj.AmountSales;
-        newObj.monthlyProfit = obj.monthlyProfit;
+        newObj.monthlyProfit = obj.ingresoNeto;
         return newObj;
       }
     
@@ -49,7 +49,7 @@ export class TopProduct {
     static createFromObject(obj: any): TopProduct {
       const newObj = new TopProduct();
       newObj.productoId = obj.productoId;
-      newObj.productName = obj.productName;
+      newObj.productName = obj.nombreProducto;
       newObj.cantidad_vendida = obj.cantidad_vendida;
       return newObj;
     }

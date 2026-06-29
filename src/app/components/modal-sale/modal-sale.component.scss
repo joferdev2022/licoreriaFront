@@ -132,10 +132,15 @@ button {
 
 .cart-title, .cart-element {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr;
+    grid-template-columns: 1.1fr 1.3fr 1.5fr 1fr 0.8fr;
     align-items: center;
     gap: 10px;
     width: 750px;
+}
+
+.cart-element .sku-select {
+    margin-top: 10px;
+    width: 160px;
 }
 
 .cart-element .unitaryPrice {

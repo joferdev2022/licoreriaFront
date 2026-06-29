@@ -24,7 +24,7 @@ import { ModalProductExcelComponent } from 'src/app/components/modal-product-exc
 })
 
 export class ProductsComponent implements OnInit {
-  displayedColumns: string[] = ['name', 'description', 'category', 'measure', 'priceBuy', 'priceSale', 'stock', 'actions'];
+  displayedColumns: string[] = ['name', 'category', 'brand', 'presentation', 'barcode', 'priceBuy', 'skuPrices', 'stock', 'actions'];
   dataSource!: MatTableDataSource<ProductModel>;
 
   public totalProducts?: number;
@@ -69,6 +69,7 @@ export class ProductsComponent implements OnInit {
         this.dataSource = new MatTableDataSource(this.products);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.configureProductTableDataSource();
         this.totalProducts = res.total;
         this.itemsPerPage = res.xpage;
         this.currentPage = res.page!;
@@ -80,6 +81,42 @@ export class ProductsComponent implements OnInit {
       }
     })
 
+  }
+
+  configureProductTableDataSource() {
+    this.dataSource.filterPredicate = (product: ProductModel, filter: string): boolean => {
+      const searchableValue = [
+        product.name,
+        product.category,
+        product.brand,
+        product.presentation,
+        product.content,
+        product.contentUnit,
+        product.barcode,
+        product.skus.map(sku => `${sku.name} ${sku.priceSale}`).join(' ')
+      ].join(' ').toLowerCase();
+
+      return searchableValue.includes(filter);
+    };
+
+    this.dataSource.sortingDataAccessor = (product: ProductModel, property: string): string | number => {
+      switch (property) {
+        case 'presentation':
+          return this.getProductPresentation(product);
+        case 'skuPrices':
+          return product.priceSale;
+        case 'priceBuy':
+          return product.priceBuy;
+        case 'stock':
+          return product.stock;
+        default:
+          return (product as any)[property] ?? '';
+      }
+    };
+  }
+
+  getProductPresentation(product: ProductModel): string {
+    return [product.presentation, product.content, product.contentUnit].filter(Boolean).join(' ');
   }
 
   openDialogPin() {

@@ -75,8 +75,8 @@ export class HomeComponent implements OnInit {
         this.dataSource2 = new MatTableDataSource(this.productsLow);
         this.totalProducts = res.data.totalProducts;
         this.totalSales = res.data.totalSales;
-        this.amountSales = res.data.AmountSales;
-        this.monthlyProfit = res.data.monthlyProfit;
+        this.amountSales = res.data.AmountSales/100;
+        this.monthlyProfit = res.data.monthlyProfit/100;
         
         // this.dataSource = new MatTableDataSource(this.res);
         

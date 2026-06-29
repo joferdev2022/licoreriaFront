@@ -3,7 +3,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DataService } from '../../services/data.service';
 import { SaleRequest } from 'src/app/models/request/sale.request';
-import { ProductModel } from 'src/app/models/internal/product.model';
+import { ProductModel, ProductSkuModel } from 'src/app/models/internal/product.model';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -58,14 +58,18 @@ export class ModalSaleComponent implements OnInit{
       paginatorIntl.itemsPerPageLabel = 'items por página';
 
       this.saleForm = this.fb.group({
-      nombreVendedor: ['', Validators.required],
-      nombreCliente: ['',],
-      direccionCliente: ['', ],
-      paymentMhetod: ['efectivo', Validators.required],
-      productos: this.fb.array([]),
-      precioTotal: [0, Validators.min(0)],
-      estado: ['cancelado', Validators.required],
-      local: [this.local]
+      
+        
+
+        estado: ['cancelado', Validators.required],
+        local: [this.local],
+        pago: this.fb.group({
+          tipo: ['efectivo', Validators.required],
+          total: [0, Validators.min(0)],
+          pagado: [0, Validators.min(0)],
+          pagos: this.fb.array([])
+        }),
+        productos: this.fb.array([])
     });
               }
   
@@ -126,12 +130,19 @@ export class ModalSaleComponent implements OnInit{
       alert("No hay stock disponible");
       return;
     }
+
+    const sku = this.getDefaultSku(productItem);
     const productoForm = this.fb.group({
       productoId: [productItem ? productItem.id : '' , Validators.required],
+      skuId: [sku.skuId, Validators.required],
       cantidad: [1, [Validators.required, Validators.min(1)]],
-      precioBuy: [productItem ? productItem.priceBuy : 0, [Validators.required, Validators.min(0)]],
-      precioUnitario: [productItem ? productItem.priceSale : 0, [Validators.required, Validators.min(0)]],
-      productName: [productItem ? productItem.name : '', Validators.required],
+      equivalenciaUnidades: [sku.unitEquivalence, [Validators.required, Validators.min(1)]],
+      precioCompraUnitario: [productItem ? productItem.priceBuy : 0, [Validators.required, Validators.min(0)]],
+      precioVentaUnitario: [sku.priceSale, [Validators.required, Validators.min(0)]],
+      nombreProducto: [productItem ? productItem.name : '', Validators.required],
+      marca: [productItem ? productItem.brand : ''],
+      skuNombre: [sku.name, Validators.required],
+      skus: [productItem?.skus?.length ? productItem.skus : [sku]],
 
     });
 
@@ -152,8 +163,10 @@ export class ModalSaleComponent implements OnInit{
     const control = this.productos.at(index).get('cantidad')!;
     const productoId = this.productos.at(index).get('productoId')!.value;
     const product = this.products.find(p => p.id === productoId);
+    const equivalenciaUnidades = this.productos.at(index).get('equivalenciaUnidades')!.value || 1;
+    const unidadesSolicitadas = (control.value + 1) * equivalenciaUnidades;
 
-    if(control.value >= product!.stock) {
+    if(product && unidadesSolicitadas > product.stock) {
       alert("No hay suficiente stock disponible");
       return;
 
@@ -174,55 +187,141 @@ export class ModalSaleComponent implements OnInit{
   }
 
   updatePrecioTotal() {
-    console.log("updateprecio");
-    console.log(this.productos.controls);
-    // console.log(productoForm);
-    
-    
-    
     const total = this.productos.controls.reduce((sum, control) => {
-      return sum + (control.get('cantidad')?.value * control.get('precioUnitario')?.value);
+      return sum + (control.get('cantidad')?.value * control.get('precioVentaUnitario')?.value);
     }, 0);
-    this.saleForm.patchValue({ precioTotal: total });
-
 
     this.totalPriceView = total;
 
-    console.log(total);
-    
+    // Actualizar el total y pagado dentro del grupo pago
+    this.saleForm.get('pago')!.patchValue({
+      total: total,
+      pagado: total
+    });
   }
 
   onCreate() {
-
-    
-    // this.saleForm.patchValue({ local: this.local });
     console.log(this.saleForm.value);
-    // console.log();
     
-    if(true) {
-      const saleData = this.saleForm.value;
-      const saleRequest = SaleRequest.createFromObject(saleData);
-      console.log(saleRequest);
-      
-      this.dataService.saveSale(saleRequest).subscribe({
-        next: (res) => {
-          console.log(res);
-          Swal.fire({
-                        title: "Hecho!",
-                        text: "La venta se ha realizado correctamente.",
-                        icon: "success"
-                      });
-        },
-        error: (e) => {
-          console.log(e);
-          Swal.fire({
-                        title: "ERROR!",
-                        text: "La venta no se ha pudo realizar.",
-                        icon: "error"
-                      });
-        }
-      })
+    if (this.productos.length === 0) {
+      Swal.fire({
+        title: 'Atención',
+        text: 'Debe agregar al menos un producto a la venta.',
+        icon: 'warning'
+      });
+      return;
     }
+
+    if (!this.saleForm.valid) {
+      Swal.fire({
+        title: 'Atención',
+        text: 'Por favor complete todos los campos requeridos.',
+        icon: 'warning'
+      });
+      return;
+    }
+
+    const saleData = this.buildSaleData();
+    const saleRequest = SaleRequest.createFromObject(saleData);
+    console.log('Sale request:', saleRequest);
+
+    this.dataService.saveSale(saleRequest).subscribe({
+      next: (res) => {
+        console.log(res);
+        Swal.fire({
+          title: 'Hecho!',
+          text: 'La venta se ha realizado correctamente.',
+          icon: 'success'
+        });
+        this.dialogRef.close(true);
+      },
+      error: (e) => {
+        console.log(e);
+        Swal.fire({
+          title: 'ERROR!',
+          text: 'La venta no se pudo realizar.',
+          icon: 'error'
+        });
+      }
+    });
+  }
+
+  getDefaultSku(productItem: ProductModel): ProductSkuModel {
+    if (productItem?.skus?.length) {
+      return productItem.skus[0];
+    }
+
+    return {
+      skuId: productItem?.id,
+      name: productItem?.measure || productItem?.name,
+      unitEquivalence: 1,
+      priceSale: productItem?.priceSale || 0
+    } as ProductSkuModel;
+  }
+
+  onSkuChange(index: number) {
+    const control = this.productos.at(index);
+    const skuId = control.get('skuId')!.value;
+    const skus = control.get('skus')!.value as ProductSkuModel[];
+    const sku = skus.find(item => item.skuId === skuId);
+
+    if (!sku) {
+      return;
+    }
+
+    control.patchValue({
+      skuNombre: sku.name,
+      equivalenciaUnidades: sku.unitEquivalence,
+      precioVentaUnitario: sku.priceSale
+    });
+
+    const productoId = control.get('productoId')!.value;
+    const product = this.products.find(p => p.id === productoId);
+    const cantidad = control.get('cantidad')!.value;
+    if (product && cantidad * sku.unitEquivalence > product.stock) {
+      control.get('cantidad')!.setValue(Math.max(1, Math.floor(product.stock / sku.unitEquivalence)));
+    }
+
+    this.updatePrecioTotal();
+  }
+
+  private buildSaleData() {
+    const total = this.totalPriceView;
+    const metodoPago = this.saleForm.get('pago.tipo')!.value;
+    const now = new Date().toISOString();
+
+    const productos = this.productos.value.map(({ skus, ...producto }: any) => {
+      const unidadesVendidas = producto.cantidad * producto.equivalenciaUnidades;
+      const subtotalCosto = producto.cantidad * producto.precioCompraUnitario;
+      const subtotalVenta = producto.cantidad * producto.precioVentaUnitario;
+
+      return {
+        ...producto,
+        unidadesVendidas,
+        subtotalCosto,
+        subtotalVenta
+      };
+    });
+
+    return {
+      local: this.saleForm.get('local')!.value,
+      fechaVenta: now,
+      estado: this.saleForm.get('estado')!.value,
+      productos,
+      pago: {
+        tipo: metodoPago,
+        total,
+        pagado: total,
+        saldoPendiente: 0,
+        pagos: [
+          {
+            monto: total,
+            fecha: now,
+            metodo: metodoPago
+          }
+        ]
+      }
+    };
   }
 
   onUpdate() {

@@ -53,7 +53,7 @@ export class CreditsComponent {
           console.log(res);
           
           this.sales = res.data;
-          this.sales.sort((a, b) => new Date(b.dateSale).getTime() - new Date(a.dateSale).getTime())  
+          // this.sales.sort((a, b) => new Date(b.dateSale).getTime() - new Date(a.dateSale).getTime())  
           console.log(res);
           this.dataSource = new MatTableDataSource(this.sales);
           this.dataSource.paginator = this.paginator;
