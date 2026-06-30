@@ -6,7 +6,7 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import {LiveAnnouncer} from '@angular/cdk/a11y';
 import { DataService } from 'src/app/services/data.service';
-import { DashboardModel, LowProduct, TopProduct } from 'src/app/models/internal/dashboard.model';
+import { DashboardComparison, DashboardModel, LowProduct, TopProduct } from 'src/app/models/internal/dashboard.model';
 
 
 @Component({
@@ -44,6 +44,10 @@ export class HomeComponent implements OnInit {
     end: new FormControl<Date | null>(null),
   });
 
+  comparacionAmountSale!: any;
+  comparacionIngresoNeto!: any;
+  comparacionTotalSales!: any;
+
   constructor(private _liveAnnouncer: LiveAnnouncer,
               private dataService: DataService, ) {
 
@@ -75,8 +79,11 @@ export class HomeComponent implements OnInit {
         this.dataSource2 = new MatTableDataSource(this.productsLow);
         this.totalProducts = res.data.totalProducts;
         this.totalSales = res.data.totalSales;
+        this.comparacionTotalSales = res.data.comparacion.totalSales;
         this.amountSales = res.data.AmountSales/100;
+        this.comparacionAmountSale = res.data.comparacion.AmountSales;
         this.monthlyProfit = res.data.monthlyProfit/100;
+        this.comparacionIngresoNeto = res.data.comparacion.ingresoNeto;
         
         // this.dataSource = new MatTableDataSource(this.res);
         

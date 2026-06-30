@@ -141,6 +141,6 @@
 
 <mat-dialog-actions align="end">
   <button class="btn-cancel" mat-button mat-dialog-close>Cancelar Venta</button>
-  <button *ngIf="data.operation == 'create'" mat-button (click)="onCreate()" cdkFocusInitial>Guardar Venta</button>
+  <button *ngIf="data.operation == 'create'" mat-button (click)="onCreate()" [disabled]="isSaving" cdkFocusInitial>Guardar Venta</button>
   <button *ngIf="data.operation == 'update'" mat-button (click)="onUpdate()" cdkFocusInitial>Guardar Venta</button>
 </mat-dialog-actions>

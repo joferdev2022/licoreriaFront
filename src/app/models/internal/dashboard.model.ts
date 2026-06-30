@@ -8,6 +8,7 @@ export class DashboardModel {
     totalProducts!: number;
     AmountSales!: number;
     monthlyProfit!: number;
+    comparacion!: DashboardComparison;
 
 
     static createFromObject(obj: any): DashboardModel {
@@ -19,6 +20,7 @@ export class DashboardModel {
         newObj.totalProducts = obj.totalProducts;
         newObj.AmountSales = obj.AmountSales;
         newObj.monthlyProfit = obj.ingresoNeto;
+        newObj.comparacion = DashboardComparison.createFromObject(obj?.comparacion);
         return newObj;
       }
     
@@ -38,6 +40,27 @@ export class DashboardModel {
     //   }
     
 }
+
+
+
+export class DashboardComparison {
+
+  ingresoNeto!: number | null;
+  AmountSales!: number | null;
+  totalSales!: number | null;
+
+  static createFromObject(obj: any): DashboardComparison {
+
+    const newObj = new DashboardComparison();
+
+    newObj.ingresoNeto = obj?.ingresoNeto ?? null;
+    newObj.AmountSales = obj?.AmountSales ?? null;
+    newObj.totalSales = obj?.totalSales ?? null;
+
+    return newObj;
+  }
+}
+
 
 export class TopProduct {
     productoId!: string;

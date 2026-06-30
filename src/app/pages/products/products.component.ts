@@ -201,13 +201,24 @@ export class ProductsComponent implements OnInit {
       console.log(result);
 
       if (result == true) {
-
+        Swal.fire({
+          title: "Hecho!",
+          text: "El producto se ha creado correctamente.",
+          icon: "success"
+        });
         timer(1000).subscribe(() => {
 
           this.loadAllProducts();
         });
 
+      } else if (result === false) {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el producto. Intenta nuevamente.",
+          icon: "error"
+        });
       }
+      
       console.log(`Dialog result: ${result}`);
     });
   }
@@ -225,11 +236,23 @@ export class ProductsComponent implements OnInit {
 
       if (result == true) {
 
+        Swal.fire({
+          title: "Hecho!",
+          text: "El producto se ha actualizado correctamente.",
+          icon: "success"
+        });
+
         timer(1000).subscribe(() => {
 
           this.loadAllProducts();
         });
 
+      } else if (result === false) {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar el producto. Intenta nuevamente.",
+          icon: "error"
+        });
       }
       console.log(`Dialog result: ${result}`);
     });

@@ -33,6 +33,8 @@ export class ModalSaleComponent implements OnInit{
 
   local!: number;
 
+  isSaving = false;
+
   // vendedores: any[] = [
   //   {value: 'Vendedor1', viewValue: 'Vendedor1'},
   //   {value: 'Vendedor2', viewValue: 'Vendedor2'},
@@ -201,6 +203,10 @@ export class ModalSaleComponent implements OnInit{
   }
 
   onCreate() {
+
+    if (this.isSaving) {
+      return;
+    }
     console.log(this.saleForm.value);
     
     if (this.productos.length === 0) {
@@ -221,6 +227,8 @@ export class ModalSaleComponent implements OnInit{
       return;
     }
 
+    this.isSaving = true;
+
     const saleData = this.buildSaleData();
     const saleRequest = SaleRequest.createFromObject(saleData);
     console.log('Sale request:', saleRequest);
@@ -228,6 +236,10 @@ export class ModalSaleComponent implements OnInit{
     this.dataService.saveSale(saleRequest).subscribe({
       next: (res) => {
         console.log(res);
+
+        this.isSaving = false;
+
+
         Swal.fire({
           title: 'Hecho!',
           text: 'La venta se ha realizado correctamente.',
@@ -237,6 +249,10 @@ export class ModalSaleComponent implements OnInit{
       },
       error: (e) => {
         console.log(e);
+
+        this.isSaving = false;
+
+        
         Swal.fire({
           title: 'ERROR!',
           text: 'La venta no se pudo realizar.',

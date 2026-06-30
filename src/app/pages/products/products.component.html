@@ -16,7 +16,8 @@
             <button title="Descargar Excel" class="btn-excel" (click)="downloadExcel()">
                 <mat-icon class="material-icons-outlined">file_download</mat-icon>
             </button>
-            <button class="btn-add" (click)="openDialogPin()">
+            <!-- <button class="btn-add" (click)="openDialogPin()"> -->
+            <button class="btn-add" (click)="openDialogCreate()">
                 <mat-icon class="material-icons-outlined">add</mat-icon>
                 Agregar Producto
             </button>
@@ -93,7 +94,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Acciones </th>
             <td mat-cell *matCellDef="let row">
               <div class="btn-actions">
-                <button [disabled]="this.permissions == 0" (click)="openDialogPinUpdate(row)"><mat-icon class="material-icons-outlined">edit</mat-icon></button>
+                <button [disabled]="this.permissions == 0" (click)="openDialogUpdate(row)"><mat-icon class="material-icons-outlined">edit</mat-icon></button>
                 <button [disabled]="this.permissions ==0" (click)="openDeleteProductSwal(row.id)"><mat-icon class="material-icons-outlined">delete</mat-icon></button>
                 
                 
