@@ -21,6 +21,7 @@ export class ModalProductComponentComponent implements OnInit, OnDestroy {
   selectedValue!: string;
 
   category = [
+    {value: 'anisado', viewValue: 'Anisado'},
     {value: 'cerveza', viewValue: 'Cerveza'},
     {value: 'vino', viewValue: 'Vino'},
     {value: 'whisky', viewValue: 'Whisky'},
