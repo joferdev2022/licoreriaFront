@@ -1,35 +1,23 @@
-<h2 *ngIf="data.operation == 'create'" mat-dialog-title>Nueva Venta:</h2>
-<h2 *ngIf="data.operation == 'update'" mat-dialog-title>Actualizar Venta:</h2>
-<mat-dialog-content class="mat-typography">
+<h2 *ngIf="data.operation == 'create'" mat-dialog-title class="sale-dialog-title">
+  Nueva Venta
+</h2>
+<h2 *ngIf="data.operation == 'update'" mat-dialog-title class="sale-dialog-title">
+  Actualizar Venta
+</h2>
+<mat-dialog-content class="mat-typography sale-dialog-content">
   <div class="example-container">
     <form class="example-form" [formGroup]="saleForm">
-      <!-- <mat-form-field class="input-name">
-        <mat-label>Vendedor:</mat-label>
-        <mat-select formControlName="nombreVendedor">
-          <mat-option *ngFor="let item of vendedores" [value]="item.aliasVendedor">
-          {{item.aliasVendedor}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field class="input-name">
-        <mat-label>Nombre del cliente:</mat-label>
-        <input matInput type="text" placeholder="" formControlName="nombreCliente">
-      </mat-form-field>
-
-      <mat-form-field class="input-name">
-        <mat-label>Dirección:</mat-label>
-        <input matInput type="text" placeholder="Opcional" formControlName="direccionCliente">
-      </mat-form-field> -->
       <div formGroupName="pago">
         <div class="metodo-pago">
-          <label>Método de Pago:</label>
-          <mat-radio-group formControlName="tipo">
+          <label>Método de Pago</label>
+          <mat-radio-group formControlName="tipo" class="payment-options">
             <mat-radio-button value="efectivo">💵 Efectivo</mat-radio-button>
             <mat-radio-button value="transferencia"
               >🏦 Transferencia</mat-radio-button
             >
             <mat-radio-button value="yape">📱 Yape</mat-radio-button>
             <mat-radio-button value="plin">📱 Plin</mat-radio-button>
+            <mat-radio-button value="tarjeta">💳 Tarjeta</mat-radio-button>
           </mat-radio-group>
         </div>
       </div>
@@ -178,9 +166,7 @@
               (click)="incrementCantidad(i)"
             />
           </div>
-          <!-- <input type="number" (change)="updatePrecioTotal()"> -->
-          <!-- <h3 class="unitaryPrice" (change)="updatePrecioTotal()">S/.{{ item.get('precioUnitario')!.value | number:'1.2-2' }}</h3> -->
-          <!-- <input type="number" name="" id="" [value]="item.get('precioUnitario')!.value"> -->
+
           <mat-form-field class="unitaryPrice">
             <input
               matInput
@@ -206,7 +192,7 @@
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" class="sale-dialog-actions">
   <button class="btn-cancel" mat-button mat-dialog-close>Cancelar Venta</button>
   <button
     *ngIf="data.operation == 'create'"
