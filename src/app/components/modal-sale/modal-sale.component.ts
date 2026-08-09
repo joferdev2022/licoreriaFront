@@ -156,6 +156,7 @@ export class ModalSaleComponent implements OnInit {
     }
 
     const sku = this.getDefaultSku(productItem);
+    
     const existingProductIndex = this.productos.controls.findIndex(
       (control) => control.get('productoId')!.value === productItem.id,
     );

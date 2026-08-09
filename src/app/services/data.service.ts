@@ -13,11 +13,13 @@ import { SellerRequest } from '../models/request/seller.request';
 import { ProviderResponse } from '../models/response/provider.response';
 import { ProviderRequest } from '../models/request/provider.request';
 import { SellerMonthlyStatsResponse } from '../models/request/seller_monthly_stats.response';
+import { ExpenseResponse } from '../models/response/expense.response';
+import { ExpenseRequest } from '../models/request/expense.request';
 
 
 
-// const base_url = "http://localhost:8000/api";
-const base_url = "https://almacenback.onrender.com/api";
+const base_url = "http://localhost:8000/api";
+// const base_url = "https://almacenback.onrender.com/api";
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +51,13 @@ export class DataService {
   loadSales(page: number = 1, perPage: number = 5000, local:any):Observable<SaleResponse> {
     const url = `${ base_url }/salesliquor?page=${ page }&xpage=${ perPage }&local=${local}`;
     return this.http.get<SaleResponse>(url).pipe(map(res => SaleResponse.createFromObject(res)));
+  }
+
+  loadExpenses(page: number = 1, perPage: number = 100, local: any): Observable<ExpenseResponse> {
+    const url = `${base_url}/expensesliquor?page=${page}&xpage=${perPage}&local=${local}`;
+    return this.http.get<ExpenseResponse>(url).pipe(
+      map(res => ExpenseResponse.createFromObject(res))
+    );
   }
 
   loadSalesWithCredit(page: number = 1, perPage: number = 5000, local:any):Observable<SaleResponse> {
@@ -102,6 +111,11 @@ export class DataService {
     return this.http.post<any>( url, providerData ).pipe(map(res => console.log(res)));
   }
 
+  saveExpense(expenseData: ExpenseRequest): Observable<any> {
+    const url = `${base_url}/expensesliquor`;
+    return this.http.post<any>(url, expenseData).pipe(map(res => res));
+  }
+
   updateProductById(productId: any , productData:ProductRequest):Observable<any> {
     const url = `${ base_url }/productsliquor/${productId}`;
     return this.http.put<any>( url, productData ).pipe(map(res => res));
@@ -115,6 +129,11 @@ export class DataService {
   updateProviderById(providerId: any , providerData:ProviderRequest):Observable<any> {
     const url = `${ base_url }/providersliquor/${providerId}`;
     return this.http.put<any>( url, providerData ).pipe(map(res => console.log(res)));
+  }
+
+  updateExpenseById(expenseId: string, expenseData: ExpenseRequest): Observable<any> {
+    const url = `${base_url}/expensesliquor/${expenseId}`;
+    return this.http.put<any>(url, expenseData).pipe(map(res => res));
   }
 
   updatStateSaleById(saleId: any , state: any):Observable<any> {
@@ -144,6 +163,11 @@ export class DataService {
 
   deleteProviderById(providerId: any):Observable<any> {
     const url = `${ base_url }/providersliquor/${providerId}`;
+    return this.http.delete<any>(url).pipe(map(res => res));
+  }
+
+  deleteExpenseById(expenseId: string): Observable<any> {
+    const url = `${base_url}/expensesliquor/${expenseId}`;
     return this.http.delete<any>(url).pipe(map(res => res));
   }
 

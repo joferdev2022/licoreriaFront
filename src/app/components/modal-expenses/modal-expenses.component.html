@@ -1,0 +1,199 @@
+<form class="expense-dialog" [formGroup]="expenseForm" (ngSubmit)="onSave()">
+  <div class="expense-dialog__header">
+    <div class="expense-dialog__title">
+      <span class="title-icon">
+        <mat-icon fontIcon="receipt_long"></mat-icon>
+      </span>
+      <h2>{{ dialogTitle }}</h2>
+    </div>
+
+    <button class="icon-button close-button" type="button" mat-dialog-close aria-label="Cerrar modal">
+      <mat-icon fontIcon="close"></mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="expense-dialog__content">
+    <div class="expense-grid">
+      <label class="field">
+        <span class="field__label">Fecha <b>*</b></span>
+        <span class="input-shell">
+          <mat-icon class="field-icon" fontIcon="calendar_month"></mat-icon>
+          <input type="date" formControlName="date" />
+        </span>
+        <span class="field__error" *ngIf="expenseForm.get('date')?.touched && expenseForm.get('date')?.hasError('required')">
+          Selecciona una fecha.
+        </span>
+      </label>
+
+      <!-- Categoría — custom dropdown -->
+      <div class="field">
+        <span class="field__label">Categoría <b>*</b></span>
+        <div class="custom-select" [class.custom-select--open]="openDropdown === 'category'">
+          <button class="custom-select__trigger" type="button" [disabled]="isViewMode" (click)="toggleDropdown('category', $event)">
+            <span class="badge badge--sm" [ngClass]="'badge--' + selectedCategory.tone">
+              <mat-icon [fontIcon]="selectedCategory.icon"></mat-icon>
+            </span>
+            <span class="custom-select__value">{{ selectedCategory.label }}</span>
+            <mat-icon class="custom-select__chevron" fontIcon="keyboard_arrow_down"></mat-icon>
+          </button>
+          <div class="custom-select__dropdown">
+            <button
+              *ngFor="let cat of categories"
+              type="button"
+              class="custom-select__option"
+              [class.custom-select__option--active]="cat.value === expenseForm.get('category')?.value"
+              (click)="selectOption('category', cat.value)">
+              <span class="badge badge--sm" [ngClass]="'badge--' + cat.tone">
+                <mat-icon [fontIcon]="cat.icon"></mat-icon>
+              </span>
+              <span>{{ cat.label }}</span>
+              <mat-icon class="option-check" *ngIf="cat.value === expenseForm.get('category')?.value" fontIcon="check"></mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="field__label">Descripción <small>(opcional)</small></span>
+        <span class="input-shell">
+          <input type="text" formControlName="description" placeholder="¿Qué se pagó?" />
+        </span>
+        <span class="field__hint">¿Qué se pagó?</span>
+        <span class="field__error" *ngIf="expenseForm.get('description')?.touched && expenseForm.get('description')?.invalid">
+          La descripción no puede superar 180 caracteres.
+        </span>
+      </label>
+
+      <!-- Estado — custom dropdown -->
+      <div class="field">
+        <span class="field__label">Estado <b>*</b></span>
+        <div class="custom-select" [class.custom-select--open]="openDropdown === 'status'">
+          <button class="custom-select__trigger" type="button" [disabled]="isViewMode" (click)="toggleDropdown('status', $event)">
+            <span class="badge badge--sm status-badge" [ngClass]="'badge--' + selectedStatus.tone">
+              <span class="status-dot"></span>
+            </span>
+            <span class="custom-select__value">{{ selectedStatus.label }}</span>
+            <mat-icon class="custom-select__chevron" fontIcon="keyboard_arrow_down"></mat-icon>
+          </button>
+          <div class="custom-select__dropdown">
+            <button
+              *ngFor="let st of statusOptions"
+              type="button"
+              class="custom-select__option"
+              [class.custom-select__option--active]="st.value === expenseForm.get('status')?.value"
+              (click)="selectOption('status', st.value)">
+              <span class="badge badge--sm status-badge" [ngClass]="'badge--' + st.tone">
+                <span class="status-dot"></span>
+              </span>
+              <span>{{ st.label }}</span>
+              <mat-icon class="option-check" *ngIf="st.value === expenseForm.get('status')?.value" fontIcon="check"></mat-icon>
+            </button>
+          </div>
+        </div>
+        <span class="field__hint">Indica si el gasto ya fue cancelado</span>
+      </div>
+
+      <label class="field">
+        <span class="field__label">Monto <b>*</b></span>
+        <span class="amount-shell">
+          <span class="amount-prefix">S/.</span>
+          <input type="number" min="0" step="0.01" formControlName="amount" />
+        </span>
+        <span class="field__hint">Ingrese el monto del gasto</span>
+        <span class="field__error" *ngIf="expenseForm.get('amount')?.touched && expenseForm.get('amount')?.invalid">
+          El monto debe ser mayor a cero.
+        </span>
+      </label>
+
+      <!-- Método de pago — custom dropdown -->
+      <div class="field">
+        <span class="field__label">Método de pago <b>*</b></span>
+        <div class="custom-select" [class.custom-select--open]="openDropdown === 'paymentMethod'">
+          <button class="custom-select__trigger" type="button" [disabled]="isViewMode" (click)="toggleDropdown('paymentMethod', $event)">
+            <span class="badge badge--sm" [ngClass]="'badge--' + selectedPaymentMethod.tone">
+              <mat-icon [fontIcon]="selectedPaymentMethod.icon"></mat-icon>
+            </span>
+            <span class="custom-select__value">{{ selectedPaymentMethod.label }}</span>
+            <mat-icon class="custom-select__chevron" fontIcon="keyboard_arrow_down"></mat-icon>
+          </button>
+          <div class="custom-select__dropdown">
+            <button
+              *ngFor="let method of paymentMethods"
+              type="button"
+              class="custom-select__option"
+              [class.custom-select__option--active]="method.value === expenseForm.get('paymentMethod')?.value"
+              (click)="selectOption('paymentMethod', method.value)">
+              <span class="badge badge--sm" [ngClass]="'badge--' + method.tone">
+                <mat-icon [fontIcon]="method.icon"></mat-icon>
+              </span>
+              <span>{{ method.label }}</span>
+              <mat-icon class="option-check" *ngIf="method.value === expenseForm.get('paymentMethod')?.value" fontIcon="check"></mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="more-info" type="button" (click)="toggleMoreInfo()" [class.more-info--open]="showMoreInfo">
+      <span class="more-info__heading">
+        <mat-icon fontIcon="expand_more"></mat-icon>
+        <strong>Más información (opcional)</strong>
+      </span>
+      <span class="more-info__text">
+        Proveedor, comprobante y observaciones.
+      </span>
+    </button>
+
+    <div class="optional-grid" *ngIf="showMoreInfo">
+      <label class="field">
+        <span class="field__label">Proveedor <small>(opcional)</small></span>
+        <span class="input-shell">
+          <input type="text" formControlName="provider" placeholder="Nombre del proveedor" />
+        </span>
+        <span class="field__error" *ngIf="expenseForm.get('provider')?.touched && expenseForm.get('provider')?.invalid">
+          El proveedor no puede superar 120 caracteres.
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Comprobante <small>(opcional)</small></span>
+        <span class="input-shell">
+          <input type="text" formControlName="voucher" placeholder="Boleta, factura o recibo" />
+        </span>
+        <span class="field__error" *ngIf="expenseForm.get('voucher')?.touched && expenseForm.get('voucher')?.invalid">
+          El comprobante no puede superar 80 caracteres.
+        </span>
+      </label>
+
+      <label class="field field--wide">
+        <span class="field__label">Observaciones <small>(opcional)</small></span>
+        <span class="input-shell input-shell--textarea">
+          <textarea rows="3" formControlName="notes" placeholder="Agrega detalles internos del gasto"></textarea>
+        </span>
+        <span class="field__error" *ngIf="expenseForm.get('notes')?.touched && expenseForm.get('notes')?.invalid">
+          Las observaciones no pueden superar 500 caracteres.
+        </span>
+      </label>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="expense-dialog__actions">
+    <p class="form-error" *ngIf="saveError">
+      <mat-icon fontIcon="error_outline"></mat-icon>
+      {{ saveError }}
+    </p>
+    <button class="action-button action-button--secondary" type="button" mat-dialog-close>
+      <mat-icon fontIcon="close"></mat-icon>
+      <span>{{ isViewMode ? 'Cerrar' : 'Cancelar' }}</span>
+    </button>
+    <button
+      *ngIf="!isViewMode"
+      class="action-button action-button--primary"
+      type="submit"
+      [attr.aria-busy]="isSaving"
+      [disabled]="isSaving">
+      <mat-icon [fontIcon]="isSaving ? 'hourglass_top' : 'save'"></mat-icon>
+      <span>{{ isSaving ? 'Guardando...' : saveButtonLabel }}</span>
+    </button>
+  </mat-dialog-actions>
+</form>
