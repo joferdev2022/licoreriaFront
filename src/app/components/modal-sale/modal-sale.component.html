@@ -1,212 +1,296 @@
-<h2 *ngIf="data.operation == 'create'" mat-dialog-title class="sale-dialog-title">
-  Nueva Venta
-</h2>
-<h2 *ngIf="data.operation == 'update'" mat-dialog-title class="sale-dialog-title">
-  Actualizar Venta
-</h2>
+<div mat-dialog-title class="sale-dialog-header">
+  <div class="sale-heading">
+    <span class="sale-heading__icon" aria-hidden="true">
+      <mat-icon fontIcon="point_of_sale"></mat-icon>
+    </span>
+    <div>
+      <h2>{{ data.operation == "create" ? "Nueva venta" : "Actualizar venta" }}</h2>
+      <p>Revisa los productos y completa el cobro.</p>
+    </div>
+  </div>
+
+  <div class="scanner-tools">
+    <div
+      class="scanner-status"
+      [class.scanner-status--loading]="scanState === 'loading'"
+      [class.scanner-status--success]="scanState === 'success'"
+      [class.scanner-status--error]="scanState === 'error'"
+      role="status"
+      aria-live="polite"
+    >
+      <mat-icon aria-hidden="true">{{ scannerIcon }}</mat-icon>
+      <span>
+        <strong>{{ scanTitle }}</strong>
+        <small>{{ scanDetail }}</small>
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="scanner-test-toggle"
+      [class.scanner-test-toggle--active]="showScannerTest"
+      [attr.aria-expanded]="showScannerTest"
+      aria-controls="scanner-test-panel"
+      (click)="toggleScannerTest()"
+    >
+      <mat-icon fontIcon="keyboard"></mat-icon>
+      {{ showScannerTest ? "Cerrar prueba" : "Probar sin escáner" }}
+    </button>
+  </div>
+</div>
+
 <mat-dialog-content class="mat-typography sale-dialog-content">
   <div class="example-container">
-    <form class="example-form" [formGroup]="saleForm">
-      <div formGroupName="pago">
-        <div class="metodo-pago">
-          <label>Método de Pago</label>
-          <mat-radio-group formControlName="tipo" class="payment-options">
-            <mat-radio-button value="efectivo">💵 Efectivo</mat-radio-button>
-            <mat-radio-button value="transferencia"
-              >🏦 Transferencia</mat-radio-button
-            >
-            <mat-radio-button value="yape">📱 Yape</mat-radio-button>
-            <mat-radio-button value="plin">📱 Plin</mat-radio-button>
-            <mat-radio-button value="tarjeta">💳 Tarjeta</mat-radio-button>
-          </mat-radio-group>
+    <section
+      *ngIf="showScannerTest"
+      id="scanner-test-panel"
+      class="scanner-test-panel"
+      aria-labelledby="scanner-test-title"
+    >
+      <div class="scanner-test-copy">
+        <span class="scanner-test-icon" aria-hidden="true">
+          <mat-icon fontIcon="science"></mat-icon>
+        </span>
+        <div>
+          <h3 id="scanner-test-title">Simular lectura</h3>
+          <p>Usa un código registrado o prueba con un producto disponible.</p>
         </div>
       </div>
 
-      <div class="table-container">
-        <div class="table-controls">
-          <mat-form-field class="example-full-width">
-            <mat-label>Buscar productos</mat-label>
-            <input
-              matInput
-              (keydown.enter)="$event.preventDefault()"
-              (keyup)="onProductSearchKeyup($event)"
-              placeholder=""
-              #productSearchInput
-              cdkFocusInitial
-            />
-          </mat-form-field>
-        </div>
+      <mat-form-field appearance="outline" class="scanner-test-field">
+        <mat-label>Código de barras</mat-label>
+        <input
+          matInput
+          autocomplete="off"
+          [formControl]="testBarcodeControl"
+          (keydown.enter)="$event.preventDefault(); simulateBarcodeScan()"
+        />
+        <mat-hint>Escribe el código y presiona Enter.</mat-hint>
+      </mat-form-field>
 
-        <div class="table-scroll">
-          <table mat-table [dataSource]="dataSource" matSort>
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="product-info">
-                  <span>{{ row.name }}</span>
-                  <span *ngIf="row.barcode" class="barcode-tag">
-                    {{ row.barcode }}
+      <div class="scanner-test-actions">
+        <button
+          type="button"
+          class="test-example-button"
+          [disabled]="!hasTestableProduct"
+          (click)="testAvailableProduct()"
+        >
+          Usar uno disponible
+        </button>
+        <button
+          type="button"
+          class="test-scan-button"
+          [disabled]="!testBarcodeControl.value.trim()"
+          (click)="simulateBarcodeScan()"
+        >
+          <mat-icon fontIcon="qr_code_scanner"></mat-icon>
+          Simular escaneo
+        </button>
+      </div>
+    </section>
+
+    <form class="example-form" [formGroup]="saleForm">
+      <section
+        class="payment-card payment-card--horizontal"
+        formGroupName="pago"
+      >
+        <header class="summary-heading">
+          <span class="summary-heading__icon" aria-hidden="true">
+            <mat-icon fontIcon="payments"></mat-icon>
+          </span>
+          <div>
+            <h3>Método de pago</h3>
+            <p>Selecciona cómo pagará el cliente.</p>
+          </div>
+        </header>
+
+        <mat-radio-group formControlName="tipo" class="payment-options">
+          <mat-radio-button
+            value="efectivo"
+            (click)="selectPaymentMethod('efectivo')"
+          >
+            <span class="payment-label">Efectivo</span>
+          </mat-radio-button>
+          <mat-radio-button
+            value="transferencia"
+            (click)="selectPaymentMethod('transferencia')"
+          >
+            <span class="payment-label">Transferencia</span>
+          </mat-radio-button>
+          <mat-radio-button value="yape" (click)="selectPaymentMethod('yape')">
+            <span class="payment-label">Yape</span>
+          </mat-radio-button>
+          <mat-radio-button value="plin" (click)="selectPaymentMethod('plin')">
+            <span class="payment-label">Plin</span>
+          </mat-radio-button>
+          <mat-radio-button
+            value="tarjeta"
+            (click)="selectPaymentMethod('tarjeta')"
+          >
+            <span class="payment-label">Tarjeta</span>
+          </mat-radio-button>
+        </mat-radio-group>
+      </section>
+
+      <div class="sale-layout">
+        <section class="sale-items-card" aria-labelledby="sale-items-title">
+          <header class="section-header">
+            <h3 id="sale-items-title">Productos de la venta</h3>
+            <span class="item-count">
+              {{ productos.length }}
+              {{ productos.length === 1 ? "producto" : "productos" }}
+            </span>
+          </header>
+
+          <div class="empty-sale" *ngIf="productos.length === 0">
+            <span class="empty-sale__icon" aria-hidden="true">
+              <mat-icon fontIcon="qr_code_scanner"></mat-icon>
+            </span>
+            <h3>Escanea el primer producto</h3>
+            <p>Aparecerá aquí automáticamente para completar la venta.</p>
+          </div>
+
+          <div
+            class="cart"
+            formArrayName="productos"
+            *ngIf="productos.length > 0"
+          >
+            <article
+              class="cart-item"
+              *ngFor="let item of productos.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="product">
+                <h3>{{ item.get("nombreProducto")!.value }}</h3>
+                <span *ngIf="item.get('barcode')!.value" class="barcode-tag">
+                  {{ item.get("barcode")!.value }}
+                </span>
+              </div>
+
+              <div class="item-control item-control--sku">
+                <label>Presentación</label>
+                <mat-form-field class="sku-select" appearance="outline">
+                  <mat-select
+                    formControlName="skuId"
+                    aria-label="Presentación del producto"
+                    (selectionChange)="onSkuChange(i)"
+                  >
+                    <mat-option
+                      *ngFor="let sku of item.get('skus')!.value"
+                      [value]="sku.skuId"
+                    >
+                      {{ sku.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="item-control item-control--quantity">
+                <label>Cantidad</label>
+                <div class="quantity" aria-label="Cantidad del producto">
+                  <button
+                    type="button"
+                    class="quantity-button"
+                    aria-label="Reducir cantidad"
+                    (click)="decrementCantidad(i)"
+                  >
+                    <mat-icon fontIcon="remove"></mat-icon>
+                  </button>
+                  <span class="quantity-value">
+                    {{ item.get("cantidad")!.value }}
                   </span>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="category">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                Categoria
-              </th>
-              <td mat-cell *matCellDef="let row">{{ row.category }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="measure">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Medida</th>
-              <td mat-cell *matCellDef="let row">{{ row.measure }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="priceSale">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                PrecioVenta
-              </th>
-              <td mat-cell *matCellDef="let row">
-                S/.{{ row.priceSale | number: "1.2-2" }}
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="stock">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock</th>
-              <td mat-cell *matCellDef="let row">{{ row.stock }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                Acciones
-              </th>
-              <td mat-cell *matCellDef="let row">
-                <div class="btn-actions">
-                  <button type="button" (click)="addProducto(row)">
+                  <button
+                    type="button"
+                    class="quantity-button"
+                    aria-label="Aumentar cantidad"
+                    (click)="incrementCantidad(i)"
+                  >
                     <mat-icon fontIcon="add"></mat-icon>
                   </button>
                 </div>
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </div>
 
-            <!-- Row shown when there is no matching data. -->
-            <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell" colspan="4">
-                No data matching the filter "{{ productSearchInput.value }}"
-              </td>
-            </tr>
-          </table>
-          <mat-paginator
-            [pageSizeOptions]="[3, 5, 10]"
-            aria-label="Select page of users"
-          ></mat-paginator>
-        </div>
-      </div>
+              <div class="item-control item-control--price">
+                <label>Precio unitario</label>
+                <mat-form-field class="unitaryPrice" appearance="outline">
+                  <span matPrefix>S/.</span>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="precioVentaUnitario"
+                    aria-label="Precio unitario"
+                    (change)="updatePrecioTotal()"
+                    step="0.01"
+                    min="0"
+                    class="price-input"
+                  />
+                </mat-form-field>
+              </div>
 
-      <div class="cart" formArrayName="productos">
-        <div class="cart-title">
-          <h3>Producto:</h3>
-          <h3>Presentación:</h3>
-          <h3 class="cantidad">Cantidad:</h3>
-          <h3>Precio Unitario:</h3>
-          <h3>Eliminar producto:</h3>
-        </div>
-        <div
-          class="cart-element"
-          *ngFor="let item of productos.controls; let i = index"
-          [formGroupName]="i"
-        >
-          <div class="product">
-            <h3>{{ item.get("nombreProducto")!.value }}</h3>
-            <span
-              *ngIf="item.get('barcode')!.value"
-              class="barcode-tag"
-            >
-              {{ item.get("barcode")!.value }}
-            </span>
-          </div>
-          <mat-form-field class="sku-select">
-            <mat-select
-              formControlName="skuId"
-              (selectionChange)="onSkuChange(i)"
-            >
-              <mat-option
-                *ngFor="let sku of item.get('skus')!.value"
-                [value]="sku.skuId"
+              <div class="item-subtotal">
+                <span>Subtotal</span>
+                <strong>
+                  S/.
+                  {{
+                    item.get("cantidad")!.value *
+                      item.get("precioVentaUnitario")!.value | number: "1.2-2"
+                  }}
+                </strong>
+              </div>
+
+              <button
+                type="button"
+                class="delete-item"
+                aria-label="Eliminar producto de la venta"
+                (click)="removeProducto(i)"
               >
-                {{ sku.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div class="quantity buttons_added">
-            <input
-              type="button"
-              value="-"
-              class="minus"
-              (click)="decrementCantidad(i)"
-            />
-            <input
-              readonly
-              (change)="updatePrecioTotal()"
-              type="number"
-              step="1"
-              name="quantity"
-              [value]="item.get('cantidad')!.value"
-              class="input-text qty text"
-              size="4"
-              formControlName="cantidad"
-            />
-            <input
-              type="button"
-              value="+"
-              class="plus"
-              (click)="incrementCantidad(i)"
-            />
+                <mat-icon fontIcon="delete_outline"></mat-icon>
+              </button>
+            </article>
           </div>
+        </section>
 
-          <mat-form-field class="unitaryPrice">
-            <input
-              matInput
-              type="number"
-              formControlName="precioVentaUnitario"
-              (change)="updatePrecioTotal()"
-              step="0.01"
-              min="0"
-              class="price-input"
-            />
-            <span matPrefix>S/.</span>
-          </mat-form-field>
-          <mat-icon fontIcon="delete" (click)="removeProducto(i)"></mat-icon>
-        </div>
-      </div>
-      <div class="cart-total">
-        <div class="cart-total_item">
-          <p>Total:</p>
-          <p>S/.{{ totalPriceView | number: "1.2-2" }}</p>
-        </div>
+        <aside class="sale-summary">
+          <section class="total-card" aria-label="Resumen de la venta">
+            <h3 class="total-card__title">Resumen</h3>
+            <div class="summary-row">
+              <span>Productos</span>
+              <strong>{{ productos.length }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Unidades</span>
+              <strong>{{ totalUnits }}</strong>
+            </div>
+            <div class="grand-total">
+              <span>Total a cobrar</span>
+              <strong>S/.{{ totalPriceView | number: "1.2-2" }}</strong>
+            </div>
+          </section>
+        </aside>
       </div>
     </form>
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="sale-dialog-actions">
-  <button class="btn-cancel" mat-button mat-dialog-close>Cancelar Venta</button>
+  <button class="btn-cancel" mat-button mat-dialog-close>Cancelar</button>
   <button
     *ngIf="data.operation == 'create'"
     mat-button
+    class="btn-save"
     (click)="onCreate()"
-    [disabled]="isSaving"
+    [disabled]="isSaving || productos.length === 0"
   >
-    Guardar Venta
+    <mat-icon fontIcon="check"></mat-icon>
+    {{ isSaving ? "Guardando..." : "Registrar venta" }}
   </button>
   <button
     *ngIf="data.operation == 'update'"
     mat-button
+    class="btn-save"
     (click)="onUpdate()"
   >
-    Guardar Venta
+    <mat-icon fontIcon="check"></mat-icon>
+    Guardar cambios
   </button>
 </mat-dialog-actions>

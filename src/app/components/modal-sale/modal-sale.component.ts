@@ -1,9 +1,9 @@
 import {
   Component,
-  ElementRef,
+  HostListener,
   Inject,
+  OnDestroy,
   OnInit,
-  ViewChild,
 } from '@angular/core';
 import {
   FormArray,
@@ -23,42 +23,34 @@ import {
   ProductModel,
   ProductSkuModel,
 } from 'src/app/models/internal/product.model';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import Swal from 'sweetalert2';
+
+type ScanState = 'loading' | 'ready' | 'success' | 'error';
 
 @Component({
   selector: 'app-modal-sale',
   templateUrl: './modal-sale.component.html',
   styleUrls: ['./modal-sale.component.scss'],
 })
-export class ModalSaleComponent implements OnInit {
+export class ModalSaleComponent implements OnInit, OnDestroy {
   public saleForm!: FormGroup;
 
   public totalPriceView = 0;
-
-  // selected = 'option2';
-
-  displayedColumns: string[] = [
-    'name',
-    'category',
-    'measure',
-    'priceSale',
-    'stock',
-    'actions',
-  ];
-  dataSource!: MatTableDataSource<ProductModel>;
-
-  public totalProducts?: number;
-  products!: Array<ProductModel>;
-  productsTemp!: any;
-  currentPage?: number = 1;
-  itemsPerPage?: number;
+  products: ProductModel[] = [];
 
   local!: number;
 
   isSaving = false;
+  showScannerTest = false;
+  testBarcodeControl = new FormControl('', { nonNullable: true });
+  scanState: ScanState = 'loading';
+  scanTitle = 'Cargando productos';
+  scanDetail = 'El lector estará disponible en un momento.';
+
+  private barcodeBuffer = '';
+  private lastBarcodeKeyAt = 0;
+  private scanFeedbackTimer?: ReturnType<typeof setTimeout>;
+  private readonly scannerKeyTimeout = 180;
 
   // vendedores: any[] = [
   //   {value: 'Vendedor1', viewValue: 'Vendedor1'},
@@ -68,26 +60,16 @@ export class ModalSaleComponent implements OnInit {
 
   vendedores: any[] = [];
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild('productSearchInput')
-  productSearchInput!: ElementRef<HTMLInputElement>;
-
   constructor(
     public dialogRef: MatDialogRef<ModalSaleComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
     private dataService: DataService,
     public dialog: MatDialog,
-    private paginatorIntl: MatPaginatorIntl,
   ) {
     this.local = JSON.parse(localStorage.getItem('local')!)
       ? JSON.parse(localStorage.getItem('local')!)
       : '';
-    this.loadAllProducts();
-
-    paginatorIntl.itemsPerPageLabel = 'items por página';
-
     this.saleForm = this.fb.group({
       estado: ['cancelado', Validators.required],
       local: [this.local],
@@ -99,12 +81,18 @@ export class ModalSaleComponent implements OnInit {
       }),
       productos: this.fb.array([]),
     });
+
+    this.loadAllProducts();
   }
 
   ngOnInit(): void {
-    // this.addProducto();
-
     this.loadVendedores();
+  }
+
+  ngOnDestroy(): void {
+    if (this.scanFeedbackTimer) {
+      clearTimeout(this.scanFeedbackTimer);
+    }
   }
 
   loadVendedores() {
@@ -120,24 +108,28 @@ export class ModalSaleComponent implements OnInit {
   }
 
   loadAllProducts() {
+    this.setScanFeedback(
+      'loading',
+      'Cargando productos',
+      'El lector estará disponible en un momento.',
+      false,
+    );
+
     this.dataService
-      .loadProducts(this.currentPage, this.itemsPerPage, this.local)
+      .loadProducts(1, 5000, this.local)
       .subscribe({
         next: (res) => {
-          console.log(res);
-
           this.products = res.data;
-          this.dataSource = new MatTableDataSource(this.products);
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-          this.totalProducts = res.total;
-          this.itemsPerPage = res.xpage;
-          this.currentPage = res.page!;
-          // console.log(res);
+          this.setScannerReady();
         },
         error: (e) => {
-          // this.openConfirmationModal(Default.CONFIRM_ERROR);
           console.log(e);
+          this.setScanFeedback(
+            'error',
+            'No se pudo preparar el lector',
+            'Cierra el modal e inténtalo nuevamente.',
+            false,
+          );
         },
       });
   }
@@ -146,24 +138,93 @@ export class ModalSaleComponent implements OnInit {
     return this.saleForm.get('productos') as FormArray;
   }
 
-  addProducto(productItem: ProductModel) {
-    console.log(productItem);
-    console.log(productItem.stock);
-    if (productItem.stock <= 0) {
-      console.log('no hay stock');
-      alert('No hay stock disponible');
+  get totalUnits(): number {
+    return this.productos.controls.reduce(
+      (total, control) => total + Number(control.get('cantidad')?.value ?? 0),
+      0,
+    );
+  }
+
+  get scannerIcon(): string {
+    if (this.scanState === 'success') {
+      return 'check_circle';
+    }
+
+    if (this.scanState === 'error') {
+      return 'error_outline';
+    }
+
+    if (this.scanState === 'loading') {
+      return 'sync';
+    }
+
+    return 'qr_code_scanner';
+  }
+
+  selectPaymentMethod(method: string): void {
+    this.saleForm.get('pago.tipo')?.setValue(method);
+  }
+
+  get hasTestableProduct(): boolean {
+    return this.products.some(
+      (product) => Boolean(String(product.barcode ?? '').trim()) && product.stock > 0,
+    );
+  }
+
+  toggleScannerTest(): void {
+    this.showScannerTest = !this.showScannerTest;
+    this.testBarcodeControl.setValue('');
+  }
+
+  simulateBarcodeScan(): void {
+    const barcode = this.testBarcodeControl.value.trim();
+    if (!barcode) {
+      this.setScanFeedback(
+        'error',
+        'Ingresa un código',
+        'Escribe o pega un código de barras para simular la lectura.',
+      );
       return;
     }
 
+    this.processBarcode(barcode);
+    this.testBarcodeControl.setValue('');
+  }
+
+  testAvailableProduct(): void {
+    const product = this.products.find(
+      (item) => Boolean(String(item.barcode ?? '').trim()) && item.stock > 0,
+    );
+
+    if (!product) {
+      this.setScanFeedback(
+        'error',
+        'No hay un producto disponible',
+        'Registra un código de barras y stock antes de realizar la prueba.',
+      );
+      return;
+    }
+
+    this.testBarcodeControl.setValue(String(product.barcode));
+    this.simulateBarcodeScan();
+  }
+
+  addProducto(productItem: ProductModel): boolean {
+    if (productItem.stock <= 0) {
+      return false;
+    }
+
     const sku = this.getDefaultSku(productItem);
-    
+    if (sku.unitEquivalence > productItem.stock) {
+      return false;
+    }
+
     const existingProductIndex = this.productos.controls.findIndex(
       (control) => control.get('productoId')!.value === productItem.id,
     );
 
     if (existingProductIndex >= 0) {
-      this.incrementCantidad(existingProductIndex);
-      return;
+      return this.incrementCantidad(existingProductIndex, false);
     }
 
     const productoForm = this.fb.group({
@@ -194,7 +255,7 @@ export class ModalSaleComponent implements OnInit {
 
     this.productos.push(productoForm);
     this.updatePrecioTotal();
-    console.log(this.productos.value);
+    return true;
   }
 
   removeProducto(index: number) {
@@ -202,9 +263,7 @@ export class ModalSaleComponent implements OnInit {
     this.updatePrecioTotal();
   }
 
-  incrementCantidad(index: number) {
-    console.log(this.productos.at(index));
-
+  incrementCantidad(index: number, showAlert = true): boolean {
     const control = this.productos.at(index).get('cantidad')!;
     const productoId = this.productos.at(index).get('productoId')!.value;
     const product = this.products.find((p) => p.id === productoId);
@@ -213,12 +272,15 @@ export class ModalSaleComponent implements OnInit {
     const unidadesSolicitadas = (control.value + 1) * equivalenciaUnidades;
 
     if (product && unidadesSolicitadas > product.stock) {
-      alert('No hay suficiente stock disponible');
-      return;
+      if (showAlert) {
+        alert('No hay suficiente stock disponible');
+      }
+      return false;
     }
 
     control.setValue(control.value + 1);
     this.updatePrecioTotal();
+    return true;
   }
 
   // Disminuye la cantidad de un producto
@@ -388,42 +450,135 @@ export class ModalSaleComponent implements OnInit {
 
   onUpdate() {}
 
-  onProductSearchKeyup(event: KeyboardEvent) {
-    const input = event.target as HTMLInputElement;
-    this.applyFilter(input.value);
-
-    if (event.key !== 'Enter') {
+  @HostListener('document:keydown', ['$event'])
+  onScannerKeydown(event: KeyboardEvent): void {
+    if (
+      this.isSaving ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.metaKey ||
+      this.isEditableElement(event.target)
+    ) {
       return;
     }
 
-    const barcode = input.value.trim().toLowerCase();
-    if (!barcode) {
+    const now = Date.now();
+
+    if (event.key === 'Enter') {
+      const barcode = this.barcodeBuffer.trim();
+      this.barcodeBuffer = '';
+
+      if (!barcode) {
+        return;
+      }
+
+      event.preventDefault();
+      this.processBarcode(barcode);
       return;
     }
 
-    const product = this.products?.find(
+    if (event.key === 'Escape' || event.key === 'Tab') {
+      this.barcodeBuffer = '';
+      return;
+    }
+
+    if (event.key.length !== 1 || event.repeat) {
+      return;
+    }
+
+    if (now - this.lastBarcodeKeyAt > this.scannerKeyTimeout) {
+      this.barcodeBuffer = '';
+    }
+
+    this.barcodeBuffer += event.key;
+    this.lastBarcodeKeyAt = now;
+    event.preventDefault();
+  }
+
+  private processBarcode(rawBarcode: string): void {
+    if (this.scanState === 'loading') {
+      this.setScanFeedback(
+        'loading',
+        'Cargando productos',
+        'Espera un momento y vuelve a escanear.',
+        false,
+      );
+      return;
+    }
+
+    const barcode = rawBarcode.toLowerCase();
+    const product = this.products.find(
       (item) => String(item.barcode ?? '').trim().toLowerCase() === barcode,
     );
 
     if (!product) {
+      this.setScanFeedback(
+        'error',
+        'Producto no encontrado',
+        `No existe un producto con el código ${rawBarcode}.`,
+      );
       return;
     }
 
-    this.addProducto(product);
-    input.value = '';
-    this.applyFilter('');
-    this.productSearchInput.nativeElement.focus();
+    if (!this.addProducto(product)) {
+      this.setScanFeedback(
+        'error',
+        'Stock insuficiente',
+        `${product.name} no tiene unidades disponibles para esta venta.`,
+      );
+      return;
+    }
+
+    this.setScanFeedback(
+      'success',
+      'Producto agregado',
+      `${product.name} se añadió a la venta.`,
+    );
   }
 
-  applyFilter(filterValue: string) {
-    if (!this.dataSource) {
-      return;
+  private isEditableElement(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
     }
 
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    const editableElement = target.closest(
+      'input, textarea, select, [contenteditable="true"]',
+    );
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+    if (editableElement instanceof HTMLInputElement) {
+      return !['radio', 'checkbox', 'button', 'submit', 'reset'].includes(
+        editableElement.type,
+      );
+    }
+
+    return Boolean(editableElement);
+  }
+
+  private setScannerReady(): void {
+    this.setScanFeedback(
+      'ready',
+      'Lector listo',
+      'Escanea un producto para agregarlo a la venta.',
+      false,
+    );
+  }
+
+  private setScanFeedback(
+    state: ScanState,
+    title: string,
+    detail: string,
+    resetToReady = true,
+  ): void {
+    if (this.scanFeedbackTimer) {
+      clearTimeout(this.scanFeedbackTimer);
+    }
+
+    this.scanState = state;
+    this.scanTitle = title;
+    this.scanDetail = detail;
+
+    if (resetToReady) {
+      this.scanFeedbackTimer = setTimeout(() => this.setScannerReady(), 2600);
     }
   }
 }
