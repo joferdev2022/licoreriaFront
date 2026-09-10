@@ -35,6 +35,10 @@ export class ModalProductComponentComponent implements OnInit, OnDestroy {
     {value: 'gaseosa', viewValue: 'Gaseosa'},
     {value: 'agua', viewValue: 'Agua'},
     {value: 'snacks', viewValue: 'Snacks'},
+    {value: 'dulces', viewValue: 'Dulces'},
+    {value: 'cigarros', viewValue: 'Cigarros'},
+    {value: 'galletas', viewValue: 'Galletas'},
+    {value: 'helados', viewValue: 'Helados'},
     {value: 'otros', viewValue: 'Otros'},
   ]
 
