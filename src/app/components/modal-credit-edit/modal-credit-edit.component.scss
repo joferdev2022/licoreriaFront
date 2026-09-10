@@ -1,101 +1,188 @@
-.example-form {
-    min-width: 150px;
-    max-width: 500px;
-    width: 100%;
+.payment-dialog {
+  padding: 24px;
+  color: #172033;
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 18px;
+}
+
+.dialog-icon {
+  display: inline-flex;
+  width: 46px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.dialog-heading h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.dialog-heading p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.debt-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.debt-summary div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.debt-summary span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.debt-summary strong {
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.debt-summary .debt-summary__balance {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.payment-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+}
+
+.amount-heading {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.amount-heading label {
+  color: #334155;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.amount-heading button {
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4338ca;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.amount-field,
+.notes-field,
+.remaining-balance {
+  grid-column: 1 / -1;
+}
+
+:host ::ng-deep .amount-field .mat-mdc-form-field-text-prefix {
+  padding-right: 8px;
+  padding-left: 10px;
+  color: #64748b;
+}
+
+.remaining-balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.remaining-balance strong {
+  color: #172033;
+  font-size: 18px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.dialog-actions button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.cancel-button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #475569;
+}
+
+.save-button {
+  border: 1px solid #172033;
+  background: #172033;
+  color: #fff;
+}
+
+.save-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 540px) {
+  .payment-dialog {
+    padding: 18px;
   }
 
-.form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.div_container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin: 1rem;
-  }
-  
-.example-full-width {
-    width: 100%;
+  .debt-summary,
+  .payment-form {
+    grid-template-columns: 1fr;
   }
 
-mat-radio-button {
-    margin: 0px 20px;
+  .amount-field,
+  .notes-field,
+  .remaining-balance {
+    grid-column: auto;
   }
 
-.state-radio-button {
-    margin-top: 20px;
-    margin-bottom: 30px;
-}
-.select-div {
-    display: flex;
-    justify-content: space-around;
-    // gap: 2rem;
-    // margin-left: 1rem;
-}
-
-.input-div {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-
-button {
-    height: 35px;
-    background: #7380ec;
-    color: #fff;
-    border: #7380ec;
-    border-radius: 40px;
-    padding: 0 2rem;
-    margin: 0.25rem;
-    cursor: pointer;
-}
-
-.btn-cancel {
-    height: 35px;
-    // line-height: 40px;
-    background: #fff;
-    color: black;
-    border: 2px solid rgb(176, 176, 176);
-    border-radius: 40px;
-    padding: 0 2rem;
-    cursor: pointer;
-}
-
-.credito_total {
-
-    max-width: 250px;
-    width: 100%;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-
-}
-
-::ng-deep .credito-total .mat-form-field-wrapper {
-    border-radius: 12px !important; /* Redondea los bordes del campo completo */
+  .dialog-actions button {
+    flex: 1;
   }
-  
-::ng-deep .credito-total .mat-form-field-infix {
-    border-radius: 12px !important; /* Redondea el área de entrada */
-    padding: 8px; /* Ajusta el espaciado */
-  }
-
-.centered-field {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-}
- 
-
-.monto_pagar {
-   max-width: 400px;
-   width: 400px; 
 }

@@ -31,7 +31,6 @@ export class SalesComponent implements OnInit {
   currentPage?: number = 1;
   itemsPerPage?: number;
   local!: any
-  stateBand!: string
   permissions!: any;
   today: Date = new Date();
 
@@ -238,45 +237,6 @@ export class SalesComponent implements OnInit {
     }
   }
 
-  openSwal(val: any) {
-      console.log(val);
-      this.stateBand = val.state === 'cancelado' ? 'credito' : 'cancelado';
-       
-      console.log(this.stateBand);
-      
-      
-      Swal.fire({
-        // title: 'deseas cambiar el estado de esta venta?',
-        text: '¿Deseas cambiar el estado de esta venta?',
-        // text: `deseas cambiar el estado de ${val}`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Si',
-        cancelButtonText: 'No'
-      }).then((result) => {
-        console.log(result);
-        
-        if (result.isConfirmed) {
-          // this.changeState(val);
-
-          this.dataService.updatStateSaleById(val.id, this.stateBand).subscribe({
-            next: (res) => {
-              Swal.fire({
-                title: "Hecho!",
-                text: "El estado de esta venta ha sido cambiado.",
-                icon: "success"
-              });
-              timer(1000).subscribe(() => {
-                this.loadAllSales();
-                this.loadSalesReportDayly();
-              });
-            }
-          })
-          
-        }
-
-      })
-      }
 }
 
 

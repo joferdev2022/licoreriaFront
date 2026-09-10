@@ -300,10 +300,64 @@
 
 .sale-items-card,
 .payment-card,
+.credit-card,
 .total-card {
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   background: #fff;
+}
+
+.credit-card {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+  padding: 16px 18px 8px;
+  border-color: #fde68a;
+  background: #fffdf6;
+}
+
+.credit-card__heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-top: 3px;
+}
+
+.credit-card__icon {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: #fef3c7;
+  color: #a16207;
+}
+
+.credit-card__heading h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.credit-card__heading p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.credit-fields {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.3fr) minmax(150px, 0.8fr) minmax(165px, 0.8fr) minmax(190px, 1fr);
+  gap: 10px;
+}
+
+.credit-fields mat-form-field {
+  width: 100%;
 }
 
 .sale-items-card {
@@ -605,7 +659,7 @@
 
 .payment-options {
   display: grid;
-  grid-template-columns: repeat(5, minmax(110px, 1fr));
+  grid-template-columns: repeat(6, minmax(100px, 1fr));
   gap: 8px;
 }
 
@@ -695,6 +749,26 @@
   line-height: 1.2;
 }
 
+.credit-summary-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 10px;
+  border-radius: 9px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.credit-summary-note mat-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  font-size: 18px;
+}
+
 .sale-dialog-actions button {
   display: inline-flex;
   min-height: 42px;
@@ -734,6 +808,15 @@
   .payment-card--horizontal {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .credit-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .credit-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .scanner-test-panel {
@@ -805,6 +888,10 @@
 
   .payment-options {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .credit-fields {
+    grid-template-columns: 1fr;
   }
 
   .sale-dialog-actions button {

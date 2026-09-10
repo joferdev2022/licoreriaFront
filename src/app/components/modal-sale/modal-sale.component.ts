@@ -41,6 +41,7 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
   local!: number;
 
   isSaving = false;
+  readonly minCreditDate = new Date().toLocaleDateString('en-CA');
   showScannerTest = false;
   testBarcodeControl = new FormControl('', { nonNullable: true });
   scanState: ScanState = 'loading';
@@ -79,6 +80,10 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
         pagado: [0, Validators.min(0)],
         pagos: this.fb.array([]),
       }),
+      clienteCreditoNombre: [''],
+      clienteCreditoTelefono: [''],
+      fechaVencimiento: [''],
+      observacionesCredito: [''],
       productos: this.fb.array([]),
     });
 
@@ -163,6 +168,41 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
 
   selectPaymentMethod(method: string): void {
     this.saleForm.get('pago.tipo')?.setValue(method);
+    const customerName = this.saleForm.get('clienteCreditoNombre')!;
+    const dueDate = this.saleForm.get('fechaVencimiento')!;
+
+    if (method === 'credito') {
+      this.saleForm.get('estado')?.setValue('credito');
+      customerName.setValidators([
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(150),
+      ]);
+      dueDate.setValidators(Validators.required);
+      if (!dueDate.value) {
+        const defaultDueDate = new Date();
+        defaultDueDate.setDate(defaultDueDate.getDate() + 7);
+        dueDate.setValue(defaultDueDate.toLocaleDateString('en-CA'));
+      }
+    } else {
+      this.saleForm.get('estado')?.setValue('cancelado');
+      customerName.clearValidators();
+      dueDate.clearValidators();
+      this.saleForm.patchValue({
+        clienteCreditoNombre: '',
+        clienteCreditoTelefono: '',
+        fechaVencimiento: '',
+        observacionesCredito: '',
+      });
+    }
+
+    customerName.updateValueAndValidity();
+    dueDate.updateValueAndValidity();
+    this.updatePrecioTotal();
+  }
+
+  get isCreditSale(): boolean {
+    return this.saleForm.get('pago.tipo')?.value === 'credito';
   }
 
   get hasTestableProduct(): boolean {
@@ -306,7 +346,7 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
     // Actualizar el total y pagado dentro del grupo pago
     this.saleForm.get('pago')!.patchValue({
       total: total,
-      pagado: total,
+      pagado: this.isCreditSale ? 0 : total,
     });
   }
 
@@ -326,9 +366,12 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
     }
 
     if (!this.saleForm.valid) {
+      this.saleForm.markAllAsTouched();
       Swal.fire({
         title: 'Atención',
-        text: 'Por favor complete todos los campos requeridos.',
+        text: this.isCreditSale
+          ? 'Completa el nombre del cliente y la fecha de vencimiento.'
+          : 'Por favor complete todos los campos requeridos.',
         icon: 'warning',
       });
       return;
@@ -358,9 +401,10 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
 
         this.isSaving = false;
 
+        const detail = e?.error?.detail;
         Swal.fire({
           title: 'ERROR!',
-          text: 'La venta no se pudo realizar.',
+          text: typeof detail === 'string' ? detail : 'La venta no se pudo realizar.',
           icon: 'error',
         });
       },
@@ -411,6 +455,7 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
   private buildSaleData() {
     const total = this.totalPriceView;
     const metodoPago = this.saleForm.get('pago.tipo')!.value;
+    const isCredit = metodoPago === 'credito';
     const now = new Date().toISOString();
 
     const productos = this.productos.value.map(({ skus, ...producto }: any) => {
@@ -430,20 +475,36 @@ export class ModalSaleComponent implements OnInit, OnDestroy {
     return {
       local: this.saleForm.get('local')!.value,
       fechaVenta: now,
-      estado: this.saleForm.get('estado')!.value,
+      estado: isCredit ? 'credito' : 'cancelado',
+      condicionPago: isCredit ? 'credito' : 'contado',
+      clienteCredito: isCredit
+        ? {
+            nombre: this.saleForm.get('clienteCreditoNombre')!.value,
+            telefono: this.saleForm.get('clienteCreditoTelefono')!.value,
+          }
+        : undefined,
+      fechaVencimiento: isCredit
+        ? this.saleForm.get('fechaVencimiento')!.value
+        : undefined,
+      observacionesCredito: isCredit
+        ? this.saleForm.get('observacionesCredito')!.value
+        : undefined,
       productos,
       pago: {
         tipo: metodoPago,
         total,
-        pagado: total,
-        saldoPendiente: 0,
-        pagos: [
-          {
-            monto: total,
-            fecha: now,
-            metodo: metodoPago,
-          },
-        ],
+        pagado: isCredit ? 0 : total,
+        saldoPendiente: isCredit ? total : 0,
+        estadoPago: isCredit ? 'pendiente' : 'pagado',
+        pagos: isCredit
+          ? []
+          : [
+              {
+                monto: total,
+                fecha: now,
+                metodo: metodoPago,
+              },
+            ],
       },
     };
   }

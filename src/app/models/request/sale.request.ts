@@ -10,35 +10,17 @@ export class ProductoVentaRequest {
   skuNombre!: string;
 
   static createFromObject(obj: any): ProductoVentaRequest {
-    const newObj = new ProductoVentaRequest();
-    newObj.productoId = obj.productoId;
-    newObj.skuId = obj.skuId;
-    newObj.cantidad = obj.cantidad;
-    newObj.equivalenciaUnidades = obj.equivalenciaUnidades;
-    newObj.precioCompraUnitario = Math.round(obj.precioCompraUnitario * 100);
-    newObj.precioVentaUnitario = Math.round(obj.precioVentaUnitario * 100);
-    newObj.nombreProducto = obj.nombreProducto;
-    newObj.marca = obj.marca;
-    newObj.skuNombre = obj.skuNombre;
-    return newObj;
-  }
-}
-
-export class PagoRequest {
-  tipo!: string;
-  total!: number;
-  pagado!: number;
-  pagos!: PagoEntradaRequest[];
-
-  static createFromObject(obj: any): PagoRequest {
-    const newObj = new PagoRequest();
-    newObj.tipo = obj.tipo;
-    newObj.total = Math.round(obj.total * 100);
-    newObj.pagado = Math.round(obj.pagado * 100);
-    newObj.pagos = Array.isArray(obj.pagos)
-      ? obj.pagos.map(PagoEntradaRequest.createFromObject)
-      : [];
-    return newObj;
+    const result = new ProductoVentaRequest();
+    result.productoId = obj.productoId;
+    result.skuId = obj.skuId;
+    result.cantidad = obj.cantidad;
+    result.equivalenciaUnidades = obj.equivalenciaUnidades;
+    result.precioCompraUnitario = Math.round(obj.precioCompraUnitario * 100);
+    result.precioVentaUnitario = Math.round(obj.precioVentaUnitario * 100);
+    result.nombreProducto = obj.nombreProducto;
+    result.marca = obj.marca;
+    result.skuNombre = obj.skuNombre;
+    return result;
   }
 }
 
@@ -46,13 +28,55 @@ export class PagoEntradaRequest {
   monto!: number;
   fecha!: string;
   metodo!: string;
+  referencia?: string;
+  observaciones?: string;
 
   static createFromObject(obj: any): PagoEntradaRequest {
-    const newObj = new PagoEntradaRequest();
-    newObj.monto = Math.round(obj.monto * 100);
-    newObj.fecha = obj.fecha;
-    newObj.metodo = obj.metodo;
-    return newObj;
+    const result = new PagoEntradaRequest();
+    result.monto = Math.round(obj.monto * 100);
+    result.fecha = obj.fecha;
+    result.metodo = obj.metodo;
+    result.referencia = obj.referencia || undefined;
+    result.observaciones = obj.observaciones || undefined;
+    return result;
+  }
+}
+
+export class PagoRequest {
+  tipo!: string;
+  total!: number;
+  pagado!: number;
+  saldoPendiente!: number;
+  estadoPago!: 'pendiente' | 'parcial' | 'pagado';
+  pagos!: PagoEntradaRequest[];
+
+  static createFromObject(obj: any): PagoRequest {
+    const result = new PagoRequest();
+    result.tipo = obj.tipo;
+    result.total = Math.round(obj.total * 100);
+    result.pagado = Math.round((obj.pagado ?? 0) * 100);
+    result.saldoPendiente = Math.round((obj.saldoPendiente ?? 0) * 100);
+    result.estadoPago = obj.estadoPago;
+    result.pagos = Array.isArray(obj.pagos)
+      ? obj.pagos.map(PagoEntradaRequest.createFromObject)
+      : [];
+    return result;
+  }
+}
+
+export class ClienteCreditoRequest {
+  nombre!: string;
+  telefono?: string;
+
+  static createFromObject(obj: any): ClienteCreditoRequest | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const result = new ClienteCreditoRequest();
+    result.nombre = String(obj.nombre ?? '').trim();
+    result.telefono = String(obj.telefono ?? '').trim() || undefined;
+    return result;
   }
 }
 
@@ -60,18 +84,27 @@ export class SaleRequest {
   local!: number;
   fechaVenta!: string;
   estado!: string;
+  condicionPago!: 'contado' | 'credito';
+  clienteCredito?: ClienteCreditoRequest;
+  fechaVencimiento?: string;
+  observacionesCredito?: string;
   pago!: PagoRequest;
   productos!: ProductoVentaRequest[];
 
   static createFromObject(obj: any): SaleRequest {
-    const newObj = new SaleRequest();
-    newObj.local = obj.local;
-    newObj.fechaVenta = obj.fechaVenta ?? new Date().toISOString();
-    newObj.estado = obj.estado;
-    newObj.pago = PagoRequest.createFromObject(obj.pago);
-    newObj.productos = Array.isArray(obj.productos)
+    const result = new SaleRequest();
+    result.local = obj.local;
+    result.fechaVenta = obj.fechaVenta ?? new Date().toISOString();
+    result.estado = obj.estado;
+    result.condicionPago = obj.condicionPago ?? 'contado';
+    result.clienteCredito = ClienteCreditoRequest.createFromObject(obj.clienteCredito);
+    result.fechaVencimiento = obj.fechaVencimiento || undefined;
+    result.observacionesCredito =
+      String(obj.observacionesCredito ?? '').trim() || undefined;
+    result.pago = PagoRequest.createFromObject(obj.pago);
+    result.productos = Array.isArray(obj.productos)
       ? obj.productos.map(ProductoVentaRequest.createFromObject)
       : [];
-    return newObj;
+    return result;
   }
 }

@@ -1,156 +1,179 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { SaleModel } from 'src/app/models/internal/sale.model';
-import { DataService } from 'src/app/services/data.service';
-import Swal from 'sweetalert2'
 import { timer } from 'rxjs';
+
 import { ModalCreditEditComponent } from 'src/app/components/modal-credit-edit/modal-credit-edit.component';
 import { ModalInfoSaleComponent } from 'src/app/components/modal-info-sale/modal-info-sale.component';
+import {
+  CreditPaymentStatus,
+  SaleModel,
+} from 'src/app/models/internal/sale.model';
+import { CreditSummaryModel } from 'src/app/models/response/credit.response';
+import { DataService } from 'src/app/services/data.service';
 
 
 @Component({
   selector: 'app-credits',
   templateUrl: './credits.component.html',
-  styleUrls: ['./credits.component.scss']
+  styleUrls: ['./credits.component.scss'],
 })
-export class CreditsComponent {
-
-  displayedColumns: string[] = ['clientName', 'direccionCliente', 'nombreVendedor', 'dateSale','totalPriceSale', 'totalDebt', 'state', 'actions'];
-  dataSource!: MatTableDataSource<SaleModel>;
-
-
-  stateBand!: string
-  local!: any
-  public totalSales?:number;
-  sales!:Array<SaleModel>;
-  salesTemp!:any;
-  currentPage?: number = 1;
-  itemsPerPage?: number;
-  permissions!: any;
+export class CreditsComponent implements OnInit, AfterViewInit {
+  displayedColumns: string[] = [
+    'cliente',
+    'fechaVenta',
+    'total',
+    'pagado',
+    'saldo',
+    'vencimiento',
+    'estado',
+    'acciones',
+  ];
+  dataSource = new MatTableDataSource<SaleModel>([]);
+  summary = new CreditSummaryModel();
+  searchControl = new FormControl('', { nonNullable: true });
+  statusControl = new FormControl('todos', { nonNullable: true });
+  isLoading = false;
+  totalCredits = 0;
+  local: any;
+  permissions: any;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dataService: DataService,
-                private paginatorIntl: MatPaginatorIntl,
-                public dialog: MatDialog,) {
-  
-              paginatorIntl.itemsPerPageLabel = 'items por página'; 
-              this.local = JSON.parse(localStorage.getItem('local')!) ? JSON.parse(localStorage.getItem('local')!) : '';
-              this.permissions = JSON.parse(localStorage.getItem('permissions')!) ? JSON.parse(localStorage.getItem('permissions')!) : '';
-                }
+  constructor(
+    private dataService: DataService,
+    private paginatorIntl: MatPaginatorIntl,
+    public dialog: MatDialog,
+  ) {
+    paginatorIntl.itemsPerPageLabel = 'Créditos por página';
+    this.local = JSON.parse(localStorage.getItem('local') || '1');
+    this.permissions = JSON.parse(localStorage.getItem('permissions') || '0');
+
+    this.dataSource.filterPredicate = (sale, rawFilter) => {
+      const filter = JSON.parse(rawFilter) as { search: string; status: string };
+      const customer = `${sale.clienteCredito?.nombre ?? ''} ${sale.clienteCredito?.telefono ?? ''}`
+        .trim()
+        .toLowerCase();
+      const matchesSearch = !filter.search || customer.includes(filter.search);
+      const matchesStatus =
+        filter.status === 'todos' || this.getPaymentStatus(sale) === filter.status;
+      return matchesSearch && matchesStatus;
+    };
+    this.dataSource.sortingDataAccessor = (sale, column) => {
+      switch (column) {
+        case 'cliente':
+          return sale.clienteCredito?.nombre?.toLowerCase() ?? '';
+        case 'fechaVenta':
+          return new Date(sale.fechaVenta).getTime();
+        case 'total':
+          return sale.pago.total;
+        case 'pagado':
+          return sale.pago.pagado;
+        case 'saldo':
+          return sale.pago.saldoPendiente;
+        case 'vencimiento':
+          return sale.fechaVencimiento
+            ? new Date(sale.fechaVencimiento).getTime()
+            : Number.MAX_SAFE_INTEGER;
+        default:
+          return '';
+      }
+    };
+  }
 
   ngOnInit(): void {
     this.loadCreditSales();
+    this.searchControl.valueChanges.subscribe(() => this.applyFilters());
+    this.statusControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
-  loadCreditSales() {
-      this.dataService.loadSalesWithCredit(this.currentPage, this.itemsPerPage, this.local).subscribe({
-        next: (res) => {
-          console.log(res);
-          
-          this.sales = res.data;
-          // this.sales.sort((a, b) => new Date(b.dateSale).getTime() - new Date(a.dateSale).getTime())  
-          console.log(res);
-          this.dataSource = new MatTableDataSource(this.sales);
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-          this.totalSales = res.total;
-          this.itemsPerPage = res.xpage;
-          this.currentPage = res.page! ;
-          // console.log(res);
-        },
-        error: (e) => {
-          // this.openConfirmationModal(Default.CONFIRM_ERROR);
-          console.log(e);
-        }
-      })
-  
-    }
-    openSwal(val: any) {
-        console.log(val);
-          this.stateBand = val.state === 'cancelado' ? 'credito' : 'cancelado';
-           
-          console.log(this.stateBand);
-          
-          
-          Swal.fire({
-            // title: 'deseas cambiar el estado de esta venta?',
-            text: '¿Deseas cambiar el estado de esta venta?',
-            // text: `deseas cambiar el estado de ${val}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Si',
-            cancelButtonText: 'No'
-          }).then((result) => {
-            console.log(result);
-            
-            if (result.isConfirmed) {
-              // this.changeState(val);
-    
-              this.dataService.updatStateSaleById(val.id, this.stateBand).subscribe({
-                next: (res) => {
-                  Swal.fire({
-                    title: "Hecho!",
-                    text: "El estado de esta venta ha sido cambiado.",
-                    icon: "success"
-                  });
-                  timer(1000).subscribe(() => {
-                    this.loadCreditSales();
-                  });
-                }
-              })
-              
-            }
-    
-          })
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
-  openDialogUpdate(saleCredit: any) {
-      console.log(saleCredit);
-      
-      const dialogRef = this.dialog.open(ModalCreditEditComponent, {
-        data: {saleCredit: saleCredit, operation: "update"}
-      });
-  
-      dialogRef.afterClosed().subscribe(result => {
-        console.log(result);
-  
-        if( result== true) {
-  
-          timer(1000).subscribe(() => {
-  
-            this.loadCreditSales();
-          });
-          
-        }
-        console.log(`Dialog result: ${result}`);
-      });
-    }
-
-  openDialogInfoSale(sale: any) {
-    const dialogRef = this.dialog.open(ModalInfoSaleComponent, {
-      data: {data: sale, operation: "info"},
-      width: '550px',
-      height: '600px'
+  loadCreditSales(): void {
+    this.isLoading = true;
+    this.dataService.loadSalesWithCredit(1, 5000, this.local).subscribe({
+      next: (response) => {
+        this.dataSource.data = response.data;
+        this.summary = response.summary;
+        this.totalCredits = response.total ?? response.data.length;
+        this.isLoading = false;
+        this.applyFilters();
+      },
+      error: (error) => {
+        console.error(error);
+        this.dataSource.data = [];
+        this.isLoading = false;
+      },
     });
+  }
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(result);
+  applyFilters(): void {
+    this.dataSource.filter = JSON.stringify({
+      search: this.searchControl.value.trim().toLowerCase(),
+      status: this.statusControl.value,
+    });
+    this.dataSource.paginator?.firstPage();
+  }
 
-      if( result== true) {
+  clearFilters(): void {
+    this.searchControl.setValue('', { emitEvent: false });
+    this.statusControl.setValue('todos', { emitEvent: false });
+    this.applyFilters();
+  }
 
-        timer(1000).subscribe(() => {
+  getPaymentStatus(sale: SaleModel): CreditPaymentStatus {
+    if (sale.estadoCobro) {
+      return sale.estadoCobro;
+    }
+    if (sale.pago.saldoPendiente <= 0) {
+      return 'pagado';
+    }
+    if (sale.fechaVencimiento && new Date(sale.fechaVencimiento).getTime() < Date.now()) {
+      return 'vencido';
+    }
+    return sale.pago.pagado > 0 ? 'parcial' : 'pendiente';
+  }
 
-          this.loadCreditSales();
-        });
-        
+  getStatusLabel(sale: SaleModel): string {
+    const labels: Record<CreditPaymentStatus, string> = {
+      pendiente: 'Pendiente',
+      parcial: 'Pago parcial',
+      pagado: 'Pagado',
+      vencido: 'Vencido',
+    };
+    return labels[this.getPaymentStatus(sale)];
+  }
+
+  openDialogPayment(sale: SaleModel): void {
+    if (sale.pago.saldoPendiente <= 0) {
+      return;
+    }
+    const dialogRef = this.dialog.open(ModalCreditEditComponent, {
+      data: { saleCredit: sale, operation: 'payment' },
+      width: '560px',
+      maxWidth: '96vw',
+      panelClass: 'credit-payment-dialog',
+    });
+    dialogRef.afterClosed().subscribe((saved) => {
+      if (saved === true) {
+        timer(350).subscribe(() => this.loadCreditSales());
       }
-      console.log(`Dialog result: ${result}`);
     });
   }
-          
+
+  openDialogInfoSale(sale: SaleModel): void {
+    this.dialog.open(ModalInfoSaleComponent, {
+      data: { data: sale, operation: 'info' },
+      width: '620px',
+      maxWidth: '96vw',
+      maxHeight: '90vh',
+    });
+  }
 }

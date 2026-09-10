@@ -1,20 +1,42 @@
 <div *ngIf="data" class="modal-info-sale">
   <div class="header">
     <div>
-      <h2>{{data.data.clientName ? data.data.clientName : 'Sin Nombre'}}</h2>
+      <h2>{{data.data.clienteCredito?.nombre || 'Detalle de venta'}}</h2>
       <div class="subtitle">Fecha: {{data.data.fechaVenta | date:'dd/MM/yyyy'}}</div>
-      <div class="subtitle">Método de Pago: {{data.data.pago.pagos[0].metodo}}</div>
+      <div class="subtitle">
+        Método de pago:
+        {{ data.data.condicionPago === 'credito' ? 'Crédito' : (data.data.pago.tipo | titlecase) }}
+      </div>
+      <div class="subtitle" *ngIf="data.data.clienteCredito?.telefono">
+        Teléfono: {{ data.data.clienteCredito.telefono }}
+      </div>
     </div>
     <div>
-      <span class="status completed">
-        <svg width="16" height="16" fill="currentColor" style="vertical-align:middle;margin-right:4px;">
-          <circle cx="8" cy="8" r="8" fill="#d1f7d6"/>
-          <path d="M5 8.5l2 2 4-4" stroke="#34c759" stroke-width="2" fill="none" stroke-linecap="round"/>
-        </svg>
-        {{data.data.estado}}
+      <span
+        class="status"
+        [class.completed]="data.data.pago.estadoPago === 'pagado'"
+        [class.pending]="data.data.pago.estadoPago !== 'pagado'">
+        <mat-icon>{{ data.data.pago.estadoPago === 'pagado' ? 'check_circle' : 'schedule' }}</mat-icon>
+        {{data.data.pago.estadoPago | titlecase}}
       </span>
     </div>
   </div>
+
+  <ng-container *ngIf="data.data.condicionPago === 'credito'">
+    <div class="section-title">Historial de pagos</div>
+    <div class="payment-history" *ngIf="data.data.pago.pagos.length; else noPayments">
+      <div class="payment-entry" *ngFor="let payment of data.data.pago.pagos">
+        <div>
+          <strong>{{ payment.metodo | titlecase }}</strong>
+          <span>{{ payment.fecha | date:'dd/MM/yyyy, h:mm a' }}</span>
+        </div>
+        <strong>S/ {{ payment.monto | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+    <ng-template #noPayments>
+      <p class="no-payments">Aún no se han registrado abonos.</p>
+    </ng-template>
+  </ng-container>
   
   <div class="section-title">Productos Vendidos</div>
   <div class="product-list">
@@ -39,6 +61,14 @@
     <div class="summary-row total">
       <span>Total:</span>
       <span class="summary-total">S/.{{data.data.pago.total | number:'1.2-2'}}</span>
+    </div>
+    <div class="summary-row" *ngIf="data.data.condicionPago === 'credito'">
+      <span>Pagado:</span>
+      <span>S/.{{data.data.pago.pagado | number:'1.2-2'}}</span>
+    </div>
+    <div class="summary-row" *ngIf="data.data.condicionPago === 'credito'">
+      <span>Saldo pendiente:</span>
+      <span>S/.{{data.data.pago.saldoPendiente | number:'1.2-2'}}</span>
     </div>
   </div>
 

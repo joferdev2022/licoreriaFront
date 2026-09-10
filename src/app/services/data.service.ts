@@ -15,6 +15,7 @@ import { ProviderRequest } from '../models/request/provider.request';
 import { SellerMonthlyStatsResponse } from '../models/request/seller_monthly_stats.response';
 import { ExpenseResponse } from '../models/response/expense.response';
 import { ExpenseRequest } from '../models/request/expense.request';
+import { CreditResponse } from '../models/response/credit.response';
 
 
 
@@ -60,9 +61,26 @@ export class DataService {
     );
   }
 
-  loadSalesWithCredit(page: number = 1, perPage: number = 5000, local:any):Observable<SaleResponse> {
-    const url = `${ base_url }/salesliquor/credits?page=${ page }&xpage=${ perPage }&local=${local}`;
-    return this.http.get<SaleResponse>(url).pipe(map(res => SaleResponse.createFromObject(res)));
+  loadSalesWithCredit(
+    page: number = 1,
+    perPage: number = 5000,
+    local: any,
+    search: string = '',
+    status: string = '',
+  ): Observable<CreditResponse> {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('xpage', perPage)
+      .set('local', local);
+    if (search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.http
+      .get<CreditResponse>(`${base_url}/creditsliquor`, { params })
+      .pipe(map(res => CreditResponse.createFromObject(res)));
   }
 
   loadDashboard(fechaInicio?: Date, fechaFin?: Date, local?: any) {
@@ -136,14 +154,13 @@ export class DataService {
     return this.http.put<any>(url, expenseData).pipe(map(res => res));
   }
 
-  updatStateSaleById(saleId: any , state: any):Observable<any> {
-    const url = `${ base_url }/salesliquor/state/${saleId}?state=${state}`;
-    return this.http.put<any>( url, {} ).pipe(map(res => res));
-  }
-
-  updatePaymentSaleById(saleId: any , payment: any):Observable<any> {
-    const url = `${ base_url }/salesliquor/payment/${saleId}?payment=${payment}`;
-    return this.http.put<any>( url, {} ).pipe(map(res => res));
+  updatePaymentSaleById(saleId: any, payment: any): Observable<any> {
+    const payload = {
+      ...payment,
+      monto: Math.round(Number(payment.monto) * 100),
+    };
+    const url = `${base_url}/creditsliquor/${saleId}/payments`;
+    return this.http.post<any>(url, payload).pipe(map(res => res));
   }
 
   updateProviderDebtById(providerId: any, deuda: number, monto: number): Observable<any> {

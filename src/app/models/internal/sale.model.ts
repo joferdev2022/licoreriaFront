@@ -1,14 +1,22 @@
+export type CreditPaymentStatus = 'pendiente' | 'parcial' | 'pagado' | 'vencido';
+
 export class PaymentEntryModel {
+  id!: string;
   monto!: number;
   fecha!: string;
   metodo!: string;
+  referencia?: string;
+  observaciones?: string;
 
   static createFromObject(obj: any): PaymentEntryModel {
-    const newObj = new PaymentEntryModel();
-    newObj.monto = obj.monto/100;
-    newObj.fecha = obj.fecha?.$date ?? obj.fecha;
-    newObj.metodo = obj.metodo;
-    return newObj;
+    const result = new PaymentEntryModel();
+    result.id = obj.id ?? '';
+    result.monto = Number(obj.monto ?? 0) / 100;
+    result.fecha = obj.fecha?.$date ?? obj.fecha;
+    result.metodo = obj.metodo ?? '';
+    result.referencia = obj.referencia ?? undefined;
+    result.observaciones = obj.observaciones ?? undefined;
+    return result;
   }
 }
 
@@ -17,18 +25,43 @@ export class PaymentModel {
   total!: number;
   pagado!: number;
   saldoPendiente!: number;
+  estadoPago!: Exclude<CreditPaymentStatus, 'vencido'>;
   pagos!: PaymentEntryModel[];
 
-  static createFromObject(obj: any): PaymentModel {
-    const newObj = new PaymentModel();
-    newObj.tipo = obj.tipo;
-    newObj.total = obj.total/100;
-    newObj.pagado = obj.pagado/100;
-    newObj.saldoPendiente = obj.saldoPendiente/100;
-    newObj.pagos = Array.isArray(obj.pagos)
+  static createFromObject(obj: any = {}): PaymentModel {
+    const result = new PaymentModel();
+    result.tipo = obj.tipo ?? '';
+    result.total = Number(obj.total ?? 0) / 100;
+    result.pagado = Number(obj.pagado ?? 0) / 100;
+    result.saldoPendiente = Number(
+      obj.saldoPendiente ?? Math.max(Number(obj.total ?? 0) - Number(obj.pagado ?? 0), 0),
+    ) / 100;
+    result.estadoPago =
+      obj.estadoPago ??
+      (result.saldoPendiente <= 0
+        ? 'pagado'
+        : result.pagado > 0
+          ? 'parcial'
+          : 'pendiente');
+    result.pagos = Array.isArray(obj.pagos)
       ? obj.pagos.map(PaymentEntryModel.createFromObject)
       : [];
-    return newObj;
+    return result;
+  }
+}
+
+export class CreditCustomerModel {
+  nombre!: string;
+  telefono?: string;
+
+  static createFromObject(obj: any): CreditCustomerModel | undefined {
+    if (!obj) {
+      return undefined;
+    }
+    const result = new CreditCustomerModel();
+    result.nombre = obj.nombre ?? '';
+    result.telefono = obj.telefono ?? undefined;
+    return result;
   }
 }
 
@@ -47,20 +80,20 @@ export class SaleProductModel {
   subtotalVenta!: number;
 
   static createFromObject(obj: any): SaleProductModel {
-    const newObj = new SaleProductModel();
-    newObj.productoId = obj.productoId;
-    newObj.skuId = obj.skuId;
-    newObj.nombreProducto = obj.nombreProducto;
-    newObj.marca = obj.marca;
-    newObj.skuNombre = obj.skuNombre;
-    newObj.cantidad = obj.cantidad;
-    newObj.equivalenciaUnidades = obj.equivalenciaUnidades;
-    newObj.unidadesVendidas = obj.unidadesVendidas;
-    newObj.precioCompraUnitario = obj.precioCompraUnitario/100;
-    newObj.precioVentaUnitario = obj.precioVentaUnitario/100;
-    newObj.subtotalCosto = obj.subtotalCosto/100;
-    newObj.subtotalVenta = obj.subtotalVenta/100;
-    return newObj;
+    const result = new SaleProductModel();
+    result.productoId = obj.productoId;
+    result.skuId = obj.skuId;
+    result.nombreProducto = obj.nombreProducto;
+    result.marca = obj.marca;
+    result.skuNombre = obj.skuNombre;
+    result.cantidad = obj.cantidad;
+    result.equivalenciaUnidades = obj.equivalenciaUnidades;
+    result.unidadesVendidas = obj.unidadesVendidas;
+    result.precioCompraUnitario = Number(obj.precioCompraUnitario ?? 0) / 100;
+    result.precioVentaUnitario = Number(obj.precioVentaUnitario ?? 0) / 100;
+    result.subtotalCosto = Number(obj.subtotalCosto ?? 0) / 100;
+    result.subtotalVenta = Number(obj.subtotalVenta ?? 0) / 100;
+    return result;
   }
 }
 
@@ -69,29 +102,36 @@ export class SaleModel {
   local!: number;
   fechaVenta!: string;
   estado!: string;
+  condicionPago!: 'contado' | 'credito';
+  clienteCredito?: CreditCustomerModel;
+  fechaVencimiento?: string;
+  observacionesCredito?: string;
+  estadoCobro?: CreditPaymentStatus;
   pago!: PaymentModel;
   productos!: SaleProductModel[];
 
   static createFromObject(obj: any): SaleModel {
-    const newObj = new SaleModel();
-    newObj.id = obj._id?.$oid ?? obj._id ?? obj.id;
-    newObj.local = obj.local;
-    newObj.fechaVenta = obj.fechaVenta?.$date ?? obj.fechaVenta;
-    newObj.estado = obj.estado;
-    newObj.pago = PaymentModel.createFromObject(obj.pago);
-    newObj.productos = Array.isArray(obj.productos)
+    const result = new SaleModel();
+    result.id = obj._id?.$oid ?? obj._id ?? obj.id;
+    result.local = obj.local;
+    result.fechaVenta = obj.fechaVenta?.$date ?? obj.fechaVenta;
+    result.estado = obj.estado;
+    result.condicionPago =
+      obj.condicionPago ?? (obj.estado === 'credito' ? 'credito' : 'contado');
+    result.clienteCredito = CreditCustomerModel.createFromObject(obj.clienteCredito);
+    result.fechaVencimiento = obj.fechaVencimiento?.$date ?? obj.fechaVencimiento;
+    result.observacionesCredito = obj.observacionesCredito ?? undefined;
+    result.estadoCobro = obj.estadoCobro ?? undefined;
+    result.pago = PaymentModel.createFromObject(obj.pago);
+    result.productos = Array.isArray(obj.productos)
       ? obj.productos.map(SaleProductModel.createFromObject)
       : [];
-    return newObj;
+    return result;
   }
 
-  static createFromObjects(_objs: any): Array<SaleModel> {
-    const newObjs: SaleModel[] = [];
-    if (_objs instanceof Array) {
-      for (const item of _objs) {
-        newObjs.push(SaleModel.createFromObject(item));
-      }
-    }
-    return newObjs;
+  static createFromObjects(objects: any): SaleModel[] {
+    return Array.isArray(objects)
+      ? objects.map((item) => SaleModel.createFromObject(item))
+      : [];
   }
 }

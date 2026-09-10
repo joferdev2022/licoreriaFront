@@ -27,9 +27,7 @@
   margin-bottom: 0;
 }
 
-.status.completed {
-  background: #d1f7d6;
-  color: #198754;
+.status {
   font-size: 1rem;
   font-weight: 500;
   border-radius: 16px;
@@ -37,6 +35,22 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.status.completed {
+  background: #d1f7d6;
+  color: #198754;
+}
+
+.status.pending {
+  background: #fff3d6;
+  color: #a15c00;
 }
 
 .section-title {
@@ -136,4 +150,38 @@ hr {
 .close-btn:hover {
   background: #f3f4f6;
   border-color: #d1d5db;
+}
+
+.payment-history {
+  display: grid;
+  gap: 8px;
+}
+
+.payment-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.payment-entry div {
+  display: grid;
+  gap: 2px;
+}
+
+.payment-entry span,
+.no-payments {
+  color: #71717a;
+  font-size: 0.9rem;
+}
+
+.no-payments {
+  padding: 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  text-align: center;
 }

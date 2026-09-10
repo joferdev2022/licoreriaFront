@@ -129,7 +129,73 @@
           >
             <span class="payment-label">Tarjeta</span>
           </mat-radio-button>
+          <mat-radio-button
+            value="credito"
+            (click)="selectPaymentMethod('credito')"
+          >
+            <span class="payment-label">Crédito</span>
+          </mat-radio-button>
         </mat-radio-group>
+      </section>
+
+      <section class="credit-card" *ngIf="isCreditSale">
+        <header class="credit-card__heading">
+          <span class="credit-card__icon" aria-hidden="true">
+            <mat-icon fontIcon="person"></mat-icon>
+          </span>
+          <div>
+            <h3>Datos del crédito</h3>
+            <p>Identifica al cliente y define cuándo debe cancelar la deuda.</p>
+          </div>
+        </header>
+
+        <div class="credit-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre del cliente</mat-label>
+            <input
+              matInput
+              formControlName="clienteCreditoNombre"
+              maxlength="150"
+              autocomplete="off"
+            />
+            <mat-error *ngIf="saleForm.get('clienteCreditoNombre')?.invalid">
+              Ingresa el nombre del cliente.
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono (opcional)</mat-label>
+            <input
+              matInput
+              formControlName="clienteCreditoTelefono"
+              maxlength="30"
+              autocomplete="off"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de vencimiento</mat-label>
+            <input
+              matInput
+              type="date"
+              formControlName="fechaVencimiento"
+              [min]="minCreditDate"
+            />
+            <mat-error *ngIf="saleForm.get('fechaVencimiento')?.invalid">
+              Selecciona la fecha de vencimiento.
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="credit-notes">
+            <mat-label>Observaciones (opcional)</mat-label>
+            <input
+              matInput
+              formControlName="observacionesCredito"
+              maxlength="500"
+              autocomplete="off"
+            />
+          </mat-form-field>
+        </div>
       </section>
 
       <div class="sale-layout">
@@ -262,8 +328,12 @@
               <strong>{{ totalUnits }}</strong>
             </div>
             <div class="grand-total">
-              <span>Total a cobrar</span>
+              <span>{{ isCreditSale ? "Saldo a crédito" : "Total a cobrar" }}</span>
               <strong>S/.{{ totalPriceView | number: "1.2-2" }}</strong>
+            </div>
+            <div class="credit-summary-note" *ngIf="isCreditSale">
+              <mat-icon fontIcon="info"></mat-icon>
+              La venta se registrará sin pago inicial.
             </div>
           </section>
         </aside>

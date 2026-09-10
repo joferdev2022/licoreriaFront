@@ -1,24 +1,91 @@
-<h2 mat-dialog-title>Actualizar Estado de Credito:</h2>
-<mat-dialog-content class="mat-typography">
-  <div class="div_container" >
-    <form class="form-container"  [formGroup]="creditSaleForm">
-      <mat-form-field class="monto_pagar">
-        <mat-label>Monto a pagar:</mat-label>
-        <input matInput type="number" placeholder="" formControlName="amountPayment" required>
-        <mat-error *ngIf="creditSaleForm.get('amountPayment')?.hasError('amountExceedsDebt')">
-          El monto a pagar no puede ser mayor que el total de la deuda.
-        </mat-error>
-      </mat-form-field>
-    
-       <mat-form-field class="credito_total">
-        <mat-label>Total Deuda:</mat-label>
-        <input matInput placeholder="" formControlName="totalPrice" [readOnly]="true" >
-        
-      </mat-form-field> 
-    </form> 
+<div class="payment-dialog">
+  <header class="dialog-heading">
+    <span class="dialog-icon"><mat-icon>payments</mat-icon></span>
+    <div>
+      <h2>Registrar abono</h2>
+      <p>{{ sale.clienteCredito?.nombre || 'Cliente no registrado' }}</p>
+    </div>
+  </header>
+
+  <div class="debt-summary">
+    <div>
+      <span>Total del crédito</span>
+      <strong>S/ {{ sale.pago.total | number: '1.2-2' }}</strong>
+    </div>
+    <div>
+      <span>Pagado</span>
+      <strong>S/ {{ sale.pago.pagado | number: '1.2-2' }}</strong>
+    </div>
+    <div class="debt-summary__balance">
+      <span>Saldo pendiente</span>
+      <strong>S/ {{ balance | number: '1.2-2' }}</strong>
+    </div>
   </div>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button *ngIf="data.operation == 'update'" mat-button (click)="onUpdateCredit()" [mat-dialog-close]="true" cdkFocusInitial>Guardar</button>
-  <button class="btn-cancel" mat-button mat-dialog-close>Cancelar</button>
-</mat-dialog-actions>
+
+  <form [formGroup]="creditPaymentForm" class="payment-form">
+    <div class="amount-heading">
+      <label for="credit-payment-amount">Monto a pagar</label>
+      <button type="button" (click)="payFullBalance()">Pagar todo</button>
+    </div>
+
+    <mat-form-field appearance="outline" class="amount-field">
+      <span matPrefix>S/.</span>
+      <input
+        id="credit-payment-amount"
+        matInput
+        type="number"
+        formControlName="monto"
+        min="0.01"
+        [max]="balance"
+        step="0.01"
+        autocomplete="off"
+      />
+      <mat-error *ngIf="creditPaymentForm.get('monto')?.hasError('required')">
+        Ingresa un monto.
+      </mat-error>
+      <mat-error *ngIf="creditPaymentForm.get('monto')?.hasError('min')">
+        El abono debe ser mayor que cero.
+      </mat-error>
+      <mat-error *ngIf="creditPaymentForm.get('monto')?.hasError('max')">
+        El abono no puede superar el saldo.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Método de pago</mat-label>
+      <mat-select formControlName="metodo">
+        <mat-option *ngFor="let method of paymentMethods" [value]="method.value">
+          {{ method.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Número de operación (opcional)</mat-label>
+      <input matInput formControlName="referencia" maxlength="100" autocomplete="off" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="notes-field">
+      <mat-label>Observaciones (opcional)</mat-label>
+      <textarea matInput formControlName="observaciones" rows="2" maxlength="500"></textarea>
+    </mat-form-field>
+
+    <div class="remaining-balance">
+      <span>Saldo después del pago</span>
+      <strong>S/ {{ remainingBalance | number: '1.2-2' }}</strong>
+    </div>
+  </form>
+
+  <footer class="dialog-actions">
+    <button type="button" class="cancel-button" mat-dialog-close>Cancelar</button>
+    <button
+      type="button"
+      class="save-button"
+      [disabled]="isSaving"
+      (click)="submitPayment()"
+    >
+      <mat-icon>check</mat-icon>
+      {{ isSaving ? 'Guardando...' : 'Registrar pago' }}
+    </button>
+  </footer>
+</div>
