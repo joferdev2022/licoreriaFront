@@ -52,3 +52,23 @@ button {
     cursor: pointer;
 }
 
+@media (max-width: 540px) {
+    .input-div,
+    .select-div {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    mat-radio-button {
+        display: block;
+        margin: 0.35rem 0;
+    }
+
+    button,
+    .btn-cancel {
+        width: 100%;
+        min-height: 44px;
+        margin-inline: 0;
+    }
+}
+

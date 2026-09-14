@@ -38,6 +38,10 @@ $quilla-text-muted: #9a9a9a;
     }
 }
 
+.mobile-close {
+    display: none;
+}
+
 .nav-list {
     display: flex;
     flex-direction: column;
@@ -95,5 +99,44 @@ $quilla-text-muted: #9a9a9a;
 .nav-list a:hover mat-icon {
     margin-left: 0.5rem;
     color: $quilla-gold-pale;
+}
+
+@media (max-width: 900px) {
+    .side-nav-content {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .brand-header {
+        min-height: 4.75rem;
+        padding: 0.9rem 0.85rem 0.9rem 1rem;
+    }
+
+    .brand-header h2 {
+        flex: 1;
+        font-size: 0.92rem;
+    }
+
+    .mobile-close {
+        display: inline-grid;
+        place-items: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        color: $quilla-gold-pale;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba($quilla-gold, 0.22);
+        border-radius: 0.7rem;
+        cursor: pointer;
+    }
+
+    .nav-list a {
+        min-height: 3.65rem;
+        padding-left: 1.5rem;
+    }
+
+    .nav-list a.active {
+        padding-left: calc(1.5rem - 4px);
+    }
 }
 

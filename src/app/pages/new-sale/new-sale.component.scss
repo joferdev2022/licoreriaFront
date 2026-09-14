@@ -1,0 +1,279 @@
+.new-sale-container {
+  margin: 15px 30px 2rem 15px;
+  color: #1f2937;
+}
+
+.new-sale-container > h2 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+mat-card {
+  overflow: hidden;
+  border: 1px solid rgba(184, 149, 46, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.example-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.input-name,
+.example-full-width {
+  width: 100%;
+}
+
+.payment-method,
+.table-container,
+.cart-section {
+  grid-column: 1 / -1;
+}
+
+.payment-method {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.payment-method > label,
+.table-label,
+.cart-section-title {
+  color: #374151;
+  font-weight: 700;
+}
+
+.payment-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.radio-option {
+  min-height: 44px;
+}
+
+.payment-icon {
+  margin-inline: 0.25rem;
+  color: #b8952e;
+  vertical-align: middle;
+}
+
+.table-container,
+.cart-section {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.table-controls {
+  margin-top: 0.75rem;
+}
+
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid #ececec;
+  border-radius: 9px;
+  overscroll-behavior-inline: contain;
+}
+
+.table-scroll table {
+  width: 100%;
+  min-width: 760px;
+}
+
+.btn-add-product {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: #fff;
+  background: #b8952e;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.no-products {
+  margin-top: 0.75rem;
+  padding: 1.25rem;
+  color: #6b7280;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.cart-title,
+.cart-element {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) 180px 170px 120px;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.cart-title {
+  padding: 0.75rem;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-title h3,
+.cart-element h3 {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.cart-element {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.quantity {
+  display: grid;
+  grid-template-columns: 40px 54px 40px;
+}
+
+.quantity input {
+  min-width: 0;
+  height: 40px;
+  border: 1px solid #d9dde3;
+  background: #fff;
+  text-align: center;
+}
+
+.quantity .minus,
+.quantity .plus {
+  color: #725e25;
+  background: #f7f1df;
+  cursor: pointer;
+}
+
+.unitaryPrice {
+  width: 100%;
+}
+
+.cart-element > mat-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: #b42318;
+  background: #fff1f0;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+}
+
+.cart-total_item {
+  display: flex;
+  gap: 1.5rem;
+  min-width: 220px;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: #f7f1df;
+  border-radius: 9px;
+  font-weight: 800;
+}
+
+.cart-total_item p {
+  margin: 0;
+  color: #372f1e;
+}
+
+mat-card-actions {
+  gap: 0.65rem;
+  padding: 0 1rem 1rem;
+}
+
+.btn-cancel,
+.btn-save {
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.btn-save {
+  color: #fff;
+  background: #b8952e;
+}
+
+@media (max-width: 760px) {
+  .new-sale-container {
+    margin: 12px 12px 1.5rem;
+  }
+
+  .example-form {
+    grid-template-columns: 1fr;
+  }
+
+  mat-card-content {
+    padding-inline: 0.85rem;
+  }
+
+  .payment-method,
+  .table-container,
+  .cart-section {
+    padding: 0.8rem;
+  }
+
+  .payment-radio-group {
+    flex-direction: column;
+  }
+
+  .cart-title {
+    display: none;
+  }
+
+  .cart-element {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+    padding: 0.9rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+  }
+
+  .cart-element .product {
+    grid-column: 1 / -1;
+    font-size: 0.95rem;
+  }
+
+  .cart-element .quantity,
+  .cart-element .unitaryPrice {
+    grid-column: 1;
+  }
+
+  .cart-element > mat-icon {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .cart-total_item {
+    width: 100%;
+  }
+
+  mat-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  mat-card-actions {
+    grid-template-columns: 1fr;
+  }
+}

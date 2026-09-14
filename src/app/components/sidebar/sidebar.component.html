@@ -2,29 +2,32 @@
     <div class="brand-header">
         <img src="../../../assets/images/quilladrinkslogooficial.png" alt="Quilla Drinks Logo">
         <h2>QUILLA DRINKS</h2>
+        <button type="button" class="mobile-close" aria-label="Cerrar menú" (click)="closeRequested.emit()">
+            <mat-icon>close</mat-icon>
+        </button>
     </div>
     <div class="nav-list" [ngClass]="{'nav-list-open': sideNavStatus}">
-        <a  routerLink="./inicio" routerLinkActive="active">
+        <a routerLink="./inicio" routerLinkActive="active" (click)="navigationSelected.emit()">
             <mat-icon fontIcon="grid_view"></mat-icon>
             <h3>Dashboard</h3>
         </a>
-        <a  routerLink="./graficos" routerLinkActive="active">
+        <a routerLink="./graficos" routerLinkActive="active" (click)="navigationSelected.emit()">
             <mat-icon fontIcon="area_chart"></mat-icon>
             <h3>Gráficos</h3>
         </a>
-        <a  routerLink="./productos" routerLinkActive="active">
+        <a routerLink="./productos" routerLinkActive="active" (click)="navigationSelected.emit()">
             <mat-icon fontIcon="shopping_cart"></mat-icon>
             <h3>Productos</h3>
         </a>
-        <a routerLink="./ventas" routerLinkActive="active">
+        <a routerLink="./ventas" routerLinkActive="active" (click)="navigationSelected.emit()">
             <mat-icon fontIcon="receipt_long"></mat-icon>
             <h3>Ventas</h3>
         </a>
-        <a routerLink="./creditos" routerLinkActive="active">
+        <a routerLink="./creditos" routerLinkActive="active" (click)="navigationSelected.emit()">
             <mat-icon fontIcon="credit_score"></mat-icon>
             <h3>Créditos</h3>
         </a>
-        <a routerLink="./gastos" routerLinkActive="active">
+        <a routerLink="./gastos" routerLinkActive="active" (click)="navigationSelected.emit()">
             <mat-icon fontIcon="payments"></mat-icon>
             <h3>Gastos</h3>
         </a>

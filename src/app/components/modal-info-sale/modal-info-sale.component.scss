@@ -185,3 +185,34 @@ hr {
   background: #f8fafc;
   text-align: center;
 }
+
+@media (max-width: 600px) {
+  .modal-info-sale {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 1rem 1rem 0;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .header h2 {
+    font-size: 1.35rem;
+  }
+
+  .product-item,
+  .payment-entry {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.9rem;
+  }
+
+  .summary-row {
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+}

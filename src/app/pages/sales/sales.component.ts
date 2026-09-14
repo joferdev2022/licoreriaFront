@@ -147,7 +147,8 @@ export class SalesComponent implements OnInit {
     const dialogRef = this.dialog.open(ModalInfoSaleComponent, {
       data: {data: sale, operation: "info"},
       width: '550px',
-      height: '600px'
+      maxWidth: '94vw',
+      maxHeight: '90vh'
     });
 
     dialogRef.afterClosed().subscribe(result => {

@@ -540,6 +540,7 @@ tr.mat-mdc-row:hover {
 
   .primary-button {
     width: 100%;
+    min-height: 46px;
   }
 
   .summary-grid,
@@ -560,6 +561,25 @@ tr.mat-mdc-row:hover {
 
   :host ::ng-deep .table-footer .mat-mdc-paginator {
     width: 100%;
+  }
+
+  .page-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .filters-panel {
+    padding: 0.8rem;
+  }
+
+  .table-card,
+  .table-scroll {
+    max-width: 100%;
+    overscroll-behavior-inline: contain;
+  }
+
+  .action-buttons button {
+    width: 42px;
+    height: 42px;
   }
 }
 

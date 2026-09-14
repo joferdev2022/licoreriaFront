@@ -1,6 +1,9 @@
 
 .providers {
     margin: 15px 30px 0 15px;
+    --quilla-gold: #b8952e;
+    --quilla-gold-soft: #f7f1df;
+    --quilla-border: rgba(184, 149, 46, 0.2);
 }
 
 .providers h1 {
@@ -11,16 +14,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 
 .btn-add {
-    height: 35px;
-    background: #7380ec;
-    color: #fff;
-    border: #7380ec;
-    border-radius: 40px;
+    min-height: 40px;
+    background: var(--quilla-gold-soft);
+    color: #1a1a1a;
+    border: 1px solid var(--quilla-border);
+    border-radius: 8px;
     padding: 0 2rem;
+    font-weight: 700;
 }
 
 .mat-mdc-form-field {
@@ -35,15 +42,19 @@
 .btn-actions button {
     border: none;
     outline: none;
-    background-color: #fff;
+    width: 38px;
+    height: 38px;
+    background-color: transparent;
+    border-radius: 8px;
 }
 .btn-actions mat-icon {
-    color: #7d8da1;;
+    color: var(--quilla-gold);
     // color: #7380ec;
 }
 
 .summary-card {
-  background: #e9fdf2;
+  background: #faf8f2;
+  border: 1px solid var(--quilla-border);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
@@ -58,7 +69,7 @@
 .summary-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #1a7f37;
+  color: #8f7421;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -74,7 +85,8 @@
   gap: 4px;
 }
 .summary-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 .summary-item {
@@ -90,7 +102,7 @@
 }
 .item-title {
   font-size: 1rem;
-  color: #1a7f37;
+  color: #725e25;
   font-weight: 500;
 }
 .item-value {
@@ -99,14 +111,14 @@
   color: #222;
 }
 .item-value.net {
-  color: #1a7f37;
+  color: #8f7421;
 }
 .item-sub {
   font-size: 0.95rem;
   color: #555;
 }
 .item-icon {
-  color: #1a7f37;
+  color: #8f7421;
   font-size: 2rem;
   align-self: flex-end;
 }
@@ -165,4 +177,63 @@
     text-transform: capitalize;
     // padding-left: 10px;
     // margin-right: 30px;
+}
+
+.mat-elevation-z8 {
+  max-width: 100%;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--quilla-border);
+  border-radius: 10px;
+}
+
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+table {
+  width: 100%;
+  min-width: 1080px;
+}
+
+@media (max-width: 760px) {
+  .providers {
+    margin: 12px 12px 1.5rem;
+  }
+
+  .summary-card {
+    padding: 1rem;
+  }
+
+  .summary-content {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .summary-item {
+    min-width: 0;
+    padding: 0.9rem;
+  }
+
+  .providers-controls,
+  .controls,
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .btn-add {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .mat-elevation-z8 {
+    border-radius: 0.75rem;
+  }
+
+  .btn-actions button {
+    width: 42px;
+    height: 42px;
+  }
 }

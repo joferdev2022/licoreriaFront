@@ -1,22 +1,52 @@
-<!-- <nav class="navbar navbar-expand-lg bg-body-tertiary px-2"> -->
-<nav class="header">
-    <div class="logo"></div>
-    <div class="profile">
-      <div class="info">
-        <p class="text-muted"><b>{{user}}</b></p>
-        <!-- <small class="text-muted">Admin</small> -->
-      </div>
-      <!-- <mat-icon>person</mat-icon> -->
-      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-        <mat-icon>person</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Cerrar Sesión</span>
-        </button>
-      </mat-menu>
-    </div>
+<nav class="header" aria-label="Barra superior">
+  <div class="navbar-start">
+    <button
+      type="button"
+      class="mobile-menu-button"
+      aria-label="Abrir menú de navegación"
+      (click)="menuToggle.emit()"
+    >
+      <mat-icon aria-hidden="true">menu</mat-icon>
+    </button>
+    <span class="mobile-brand">Quilla Drinks</span>
+  </div>
 
+  <div class="profile">
+    <button
+      type="button"
+      class="profile-trigger"
+      [matMenuTriggerFor]="menu"
+      aria-label="Abrir menú de sesión"
+    >
+      <span class="session-icon" aria-hidden="true">
+        <mat-icon>storefront</mat-icon>
+      </span>
+
+      <span class="session-details">
+        <span class="session-label">Sesión activa</span>
+        <span class="session-local">{{ localLabel }}</span>
+      </span>
+
+      <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu" class="profile-menu" xPosition="before">
+      <div class="menu-account">
+        <span class="menu-account-label">Sesión iniciada como</span>
+        <strong>{{ user || 'Usuario' }}</strong>
+      </div>
+
+      <div class="menu-divider" role="separator"></div>
+
+      <button mat-menu-item class="logout-item" (click)="logout()">
+        <span class="logout-icon">
+          <mat-icon aria-hidden="true">logout</mat-icon>
+        </span>
+        <span class="logout-copy">
+          <strong>Cerrar sesión</strong>
+          <small>Salir de forma segura</small>
+        </span>
+      </button>
+    </mat-menu>
+  </div>
 </nav>

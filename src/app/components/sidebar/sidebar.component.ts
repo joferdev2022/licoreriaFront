@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,6 +8,8 @@ import { Component, Input } from '@angular/core';
 export class SidebarComponent {
 
   @Input() sideNavStatus: boolean = false;
+  @Output() navigationSelected = new EventEmitter<void>();
+  @Output() closeRequested = new EventEmitter<void>();
   collapse = false;
   public user: any;
   // public user: any;

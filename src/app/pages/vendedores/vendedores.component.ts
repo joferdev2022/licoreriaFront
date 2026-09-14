@@ -133,10 +133,11 @@ export class VendedoresComponent implements OnInit{
   }
 
   openDialogInfoSeller(seller: any) {
-    const dialogRef = this.dialog.open(ModalInfoSellerComponent, {
+        const dialogRef = this.dialog.open(ModalInfoSellerComponent, {
           data: {data: seller, operation: "info"},
           width: '550px',
-          height: '600px'
+          maxWidth: '94vw',
+          maxHeight: '90vh'
         });
 
         dialogRef.afterClosed().subscribe(result => {

@@ -5,11 +5,16 @@
     height: 100%;
     width: 100%;
     padding: 10% 0;
-    position: fixed; }
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+}
 
 .login-box {
-    width: 500px;
+    width: min(500px, 100%);
     margin: 0 auto;
+    border: 0;
+    border-radius: 0;
 }
 
 .login-sidebar {
@@ -28,11 +33,51 @@
     // margin-top: 30px;
     // margin-bottom: 50px;
     // padding-bottom: 40px;
-    width: 400px;
-    height: 250px;
+    width: min(400px, 100%);
+    height: auto;
+    max-height: 250px;
+    object-fit: contain;
 }
 
 .button-login {
     // background-color: #324c05;
     background-color: #a37c41;
+}
+
+@media (max-width: 600px) {
+    .login-register {
+        padding: 0;
+        background-position: center;
+    }
+
+    .login-sidebar .login-box {
+        position: relative;
+        right: auto;
+        min-height: 100dvh;
+    }
+
+    .login-box .card-body {
+        display: flex;
+        align-items: center;
+        min-height: 100dvh;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.96);
+    }
+
+    .form-horizontal {
+        width: 100%;
+    }
+
+    .logo {
+        max-height: 180px;
+    }
+
+    .form-group.mt-5 {
+        margin-top: 1.75rem !important;
+    }
+
+    .button-login {
+        width: 100%;
+        min-height: 48px;
+    }
 }

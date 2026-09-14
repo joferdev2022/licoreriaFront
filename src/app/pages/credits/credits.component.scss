@@ -283,7 +283,7 @@ tr.mat-mdc-row:hover {
 
 @media (max-width: 720px) {
   .credits-page {
-    margin: 14px 16px 24px;
+    margin: 12px 12px 24px;
   }
 
   .page-heading {
@@ -298,5 +298,27 @@ tr.mat-mdc-row:hover {
 
   .clear-button {
     width: 100%;
+  }
+
+  .page-heading h1 {
+    font-size: 1.55rem;
+  }
+
+  .page-heading p {
+    font-size: 0.9rem;
+  }
+
+  .summary-card {
+    min-height: 86px;
+    padding: 0.85rem;
+  }
+
+  .table-card {
+    max-width: 100%;
+    overscroll-behavior-inline: contain;
+  }
+
+  .action-button {
+    min-height: 42px;
   }
 }

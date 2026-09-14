@@ -1,38 +1,35 @@
-
-
 $navbar-height: 5.5rem;
+$sidebar-width: 250px;
+$mobile-breakpoint: 900px;
+
+:host {
+    display: block;
+    min-height: 100dvh;
+}
+
+.app-shell {
+    min-height: 100dvh;
+}
 
 app-sidebar {
     position: fixed;
-    left: 0;
-    top: 0;
-    width: 70px;
-    height: 100vh;
-    background-color: #1a1a1a;
+    inset: 0 auto 0 0;
+    z-index: 20;
+    width: $sidebar-width;
     overflow-x: hidden;
-    white-space: nowrap;
-    transition: 0.8s cubic-bezier(.36,-0.01,0,.77);
-    z-index: 10;
-}
-
-.app-side-nav-open {
-    width: 250px;
-    transition: 0.8s cubic-bezier(.36,-0.01,0,.77);
+    background: #1a1a1a;
+    transition: transform 220ms ease;
 }
 
 app-navbar {
     position: fixed;
-    top: 0;
-    left: 70px;
-    right: 0;
+    inset: 0 0 auto $sidebar-width;
+    z-index: 15;
     height: $navbar-height;
-    z-index: 5;
-    background-color: #f6f6f9;
-    transition: 0.8s cubic-bezier(.36,-0.01,0,.77);
-}
-
-.app-navbar-open {
-    left: 250px;
+    background: rgba(246, 246, 249, 0.94);
+    border-bottom: 1px solid rgba(184, 149, 46, 0.1);
+    backdrop-filter: blur(12px);
+    transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .navbar-hidden {
@@ -42,23 +39,57 @@ app-navbar {
 }
 
 main {
-    position: absolute;
-    width: 100%;
-    top: $navbar-height;
-    z-index: 1;
+    min-height: 100dvh;
+    padding-top: $navbar-height;
 }
 
 .display-area {
-    position: absolute;
-    left: 70px;
-    transition: 0.8s cubic-bezier(.36,-0.01,0,.77);
-
-    
+    width: calc(100% - #{$sidebar-width});
+    min-width: 0;
+    margin-left: $sidebar-width;
 }
 
+.sidebar-backdrop {
+    display: none;
+}
 
-.display-area-shrink {
-    transition: 0.8s cubic-bezier(.36,-0.01,0,.77);
-    left: 250px;
-    width: calc(100% - 250px);
+@media (max-width: $mobile-breakpoint) {
+    $mobile-navbar-height: 4.75rem;
+
+    app-sidebar {
+        z-index: 30;
+        width: min(82vw, 290px);
+        max-width: 100%;
+        transform: translateX(-100%);
+        box-shadow: 18px 0 45px rgba(0, 0, 0, 0.28);
+    }
+
+    .sidebar-is-open app-sidebar {
+        transform: translateX(0);
+    }
+
+    app-navbar {
+        inset-inline: 0;
+        height: $mobile-navbar-height;
+    }
+
+    main {
+        padding-top: $mobile-navbar-height;
+    }
+
+    .display-area {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 25;
+        padding: 0;
+        background: rgba(15, 15, 15, 0.48);
+        border: 0;
+        backdrop-filter: blur(2px);
+    }
 }

@@ -69,20 +69,20 @@
 
 :host ::ng-deep .search-field .mat-mdc-text-field-wrapper {
     height: 40px;
-    width: 450px;
+    width: 100%;
     background: #fff;
     border-radius: 6px;
 }
 
 :host ::ng-deep .search-field .mat-mdc-form-field-flex {
     height: 40px;
-    width: 450px;
+    width: 100%;
     align-items: center;
 }
 
 :host ::ng-deep .search-field .mat-mdc-form-field-infix {
     min-height: 40px;
-    width: 450px;
+    width: auto;
     padding: 8px 0;
 }
 
@@ -104,19 +104,26 @@
     box-shadow: 0 0.75rem 1.7rem rgba(16, 16, 16, 0.1);
 }
 
+.table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+}
+
 table {
     width: 100%;
+    min-width: 760px;
 }
 
 th.mat-mdc-header-cell {
     color: var(--quilla-dark);
-    font-size: 19px;
+    font-size: 0.95rem;
     font-weight: 800;
 }
 
 td.mat-mdc-cell {
     color: #4d4d4d;
-    font-size: 19px;
+    font-size: 0.92rem;
 }
 
 tr.mat-mdc-row:hover {
@@ -236,7 +243,7 @@ tr.mat-mdc-row:hover {
 
 @media (max-width: 768px) {
     .sales {
-        margin: 12px 16px 0;
+        margin: 12px 12px 1.5rem;
     }
 
     .sales-controls,
@@ -251,9 +258,34 @@ tr.mat-mdc-row:hover {
 
     .btn-add {
         width: 100%;
+        min-height: 44px;
         padding: 0 1rem;
     }
 
+    .summary-content {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .summary-item {
+        min-width: 0;
+        padding: 0.85rem;
+    }
+
+    .item-value {
+        font-size: 1.15rem;
+    }
+
+    .mat-elevation-z8 {
+        max-width: 100%;
+    }
+
+    .btn-actions button {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
     .summary-content {
         grid-template-columns: 1fr;
     }

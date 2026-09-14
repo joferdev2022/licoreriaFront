@@ -125,3 +125,36 @@ button {
   cursor: pointer;
   transition: background 0.15s, border 0.15s;
 }
+
+@media (max-width: 600px) {
+  .mat-mdc-dialog-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 0;
+
+    .estado {
+      position: static;
+      margin-left: 0;
+    }
+  }
+
+  .dialog-content {
+    .pago-card {
+      align-items: flex-start;
+      flex-direction: column;
+      min-width: 0;
+      gap: 0.35rem;
+    }
+
+    .total-pagado-container,
+    .deuda-pendiente-container {
+      gap: 1rem;
+    }
+  }
+
+  button {
+    width: 100%;
+    min-height: 44px;
+  }
+}

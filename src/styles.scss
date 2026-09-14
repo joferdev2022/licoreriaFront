@@ -5,6 +5,12 @@ html {
     font-size: 17px;
 }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body { height: 100%; }
 body { 
     margin: 0; 
@@ -12,6 +18,11 @@ body {
     font-size: 1rem;
     line-height: 1.5;
     background-color: #f6f6f9;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
 }
 
 
@@ -167,4 +178,154 @@ border-color: #136E32 !important;
   border-radius: 12px !important;
   background: #fff !important;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28) !important;
+}
+
+// Menú de usuario del navbar. Vive aquí porque Angular Material lo renderiza
+// fuera del árbol del componente, dentro del overlay global.
+.profile-menu.mat-mdc-menu-panel {
+  min-width: 17rem;
+  overflow: hidden;
+  border: 1px solid rgba(184, 149, 46, 0.18);
+  border-radius: 14px !important;
+  box-shadow: 0 18px 45px rgba(26, 26, 26, 0.16) !important;
+}
+
+.profile-menu .mat-mdc-menu-content {
+  padding: 0.45rem !important;
+}
+
+.profile-menu .menu-account {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.7rem 0.8rem 0.65rem;
+}
+
+.profile-menu .menu-account-label {
+  color: #7d8da1;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.profile-menu .menu-account strong {
+  overflow: hidden;
+  color: #363949;
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-menu .menu-divider {
+  height: 1px;
+  margin: 0.1rem 0.45rem 0.35rem;
+  background: rgba(54, 57, 73, 0.09);
+}
+
+.profile-menu .logout-item.mat-mdc-menu-item {
+  min-height: 3.55rem;
+  padding-inline: 0.65rem 0.8rem;
+  border-radius: 10px;
+}
+
+.profile-menu .logout-item:hover {
+  background: rgba(211, 47, 47, 0.07);
+}
+
+.profile-menu .logout-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.7rem;
+  color: #c43838;
+  background: rgba(211, 47, 47, 0.1);
+  border-radius: 9px;
+}
+
+.profile-menu .logout-icon .mat-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  color: inherit;
+  font-size: 1.15rem;
+}
+
+.profile-menu .logout-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.profile-menu .logout-copy strong {
+  color: #a52e2e;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.profile-menu .logout-copy small {
+  margin-top: 0.15rem;
+  color: #8a8f9d;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 720px) {
+  html {
+    font-size: 16px;
+  }
+
+  .profile-menu.mat-mdc-menu-panel {
+    width: min(17rem, calc(100vw - 1.5rem));
+    min-width: 0;
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container) {
+    width: calc(100vw - 1.5rem) !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    max-height: calc(100dvh - 1.5rem) !important;
+  }
+
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    max-height: calc(100dvh - 1.5rem) !important;
+    border-radius: 14px !important;
+  }
+
+  .mat-mdc-dialog-container .mat-mdc-dialog-content {
+    max-height: calc(100dvh - 10rem);
+    padding-inline: 1rem;
+  }
+
+  .mat-mdc-dialog-container .mat-mdc-dialog-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .mat-mdc-dialog-container .mat-mdc-dialog-actions > button {
+    min-height: 44px;
+  }
+
+  .mat-mdc-paginator-container {
+    justify-content: center !important;
+    min-height: auto !important;
+    padding: 0.65rem 0.35rem !important;
+  }
+
+  .mat-mdc-paginator-page-size {
+    margin-right: 0 !important;
+  }
+
+  .swal2-popup {
+    width: calc(100vw - 2rem) !important;
+    padding: 1.25rem !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .mat-mdc-paginator-page-size-label {
+    display: none;
+  }
 }

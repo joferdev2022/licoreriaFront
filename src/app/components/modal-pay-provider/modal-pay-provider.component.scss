@@ -54,3 +54,10 @@
     margin-right: 6px;
   }
 }
+
+@media (max-width: 540px) {
+  .btn-pago {
+    width: 100%;
+    min-height: 44px;
+  }
+}

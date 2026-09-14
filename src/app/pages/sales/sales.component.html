@@ -65,6 +65,7 @@
         </div>
     </div>
     <div class="mat-elevation-z8">
+      <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort>
           <!-- nameClient Column -->
           <ng-container matColumnDef="fechaVenta">
@@ -141,6 +142,7 @@
             <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
           </tr>
         </table>
+      </div>
       
         <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
     </div>

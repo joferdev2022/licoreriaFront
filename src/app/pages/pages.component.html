@@ -1,8 +1,22 @@
-<div class="container-fluid g-0">
-    <app-navbar class="app-navbar-open"></app-navbar>
+<div class="app-shell" [class.sidebar-is-open]="isSidebarOpen">
+    <app-navbar (menuToggle)="toggleSidebar()"></app-navbar>
+
+    <app-sidebar
+        [sideNavStatus]="isSidebarOpen"
+        (navigationSelected)="closeSidebar()"
+        (closeRequested)="closeSidebar()">
+    </app-sidebar>
+
+    <button
+        *ngIf="isMobile && isSidebarOpen"
+        type="button"
+        class="sidebar-backdrop"
+        aria-label="Cerrar menú de navegación"
+        (click)="closeSidebar()">
+    </button>
+
     <main>
-        <app-sidebar [sideNavStatus]="true" class="app-side-nav-open"></app-sidebar>
-        <div class="display-area display-area-shrink">
+        <div class="display-area">
             <router-outlet></router-outlet>
         </div>
     </main>
